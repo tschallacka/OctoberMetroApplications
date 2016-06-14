@@ -1,0 +1,76 @@
+<?php
+
+if(array_key_exists(1, $argv)) {
+    $command = $argv[1];
+    if($command == 'create:application') {
+        if(array_key_exists(2, $argv)) {
+            createApplication($argv[2]);
+        }
+    }
+    if($command == 'remove:application') {
+        if(array_key_exists(2,$argv)) {
+            removeApplication($argv[2]);
+        }
+    }
+}
+function removeApplication($appname) {
+    $destinationdir = __DIR__.DIRECTORY_SEPARATOR.'applications'.DIRECTORY_SEPARATOR.strtolower($appname);
+    if(is_dir($destinationdir)) {
+        rrmdir($destinationdir);
+    }
+}
+function createApplication($appname) {
+    $basedir = __DIR__.DIRECTORY_SEPARATOR.'base'.DIRECTORY_SEPARATOR.'baseApplication'.DIRECTORY_SEPARATOR;
+    $destinationdir = __DIR__.DIRECTORY_SEPARATOR.'applications'.DIRECTORY_SEPARATOR;
+    $lowercase = strtolower($appname);
+
+    if(!file_exists($destinationdir.$appname.'.php') && !is_dir($destinationdir.$lowercase)) {
+
+
+        $contents = file_get_contents($basedir.'BaseApplication.php');
+        $contents = str_replace('BaseApplication',$appname,$contents);
+
+
+
+        mkdir($destinationdir.$lowercase);
+        $destinationdir .= $lowercase.DIRECTORY_SEPARATOR;
+        file_put_contents($destinationdir.$appname.'.php', $contents);
+
+        mkdir($destinationdir.'css');
+        mkdir($destinationdir.'js');
+        mkdir($destinationdir.'view');
+
+        $location = 'css'.DIRECTORY_SEPARATOR.'style.css';
+        $contents = file_get_contents($basedir.$location);
+        $contents = str_replace('BaseApplication',$appname,$contents);
+        file_put_contents($destinationdir.$location, $contents);
+
+        $location = 'js'.DIRECTORY_SEPARATOR.'script.js';
+        $contents = file_get_contents($basedir.$location);
+        $contents = str_replace('BaseApplication',$appname,$contents);
+        file_put_contents($destinationdir.$location, $contents);
+
+        $location = 'view'.DIRECTORY_SEPARATOR.'app.html';
+        $contents = file_get_contents($basedir.$location);
+        $contents = str_replace('BaseApplication',$appname,$contents);
+        file_put_contents($destinationdir.$location, $contents);
+        exec("php composer.phar update");
+    }
+
+}
+
+function rrmdir($dir) {
+    if (is_dir($dir)) {
+        $objects = scandir($dir);
+        foreach ($objects as $object) {
+            if ($object != "." && $object != "..") {
+                if (is_dir($dir."/".$object))
+                    rrmdir($dir."/".$object);
+                    else
+                        unlink($dir."/".$object);
+            }
+        }
+        rmdir($dir);
+    }
+}
+?>
