@@ -7,3 +7,4 @@ applications/*
 composer
 autoload.php
 giggsey
+php55.bat
