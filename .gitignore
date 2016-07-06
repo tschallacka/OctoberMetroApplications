@@ -1,5 +1,6 @@
 applications/*
 !applications/widgets
+!applications/base
 !applications/ApplicationBase.php
 !applications/ApplicationController.php
 !applications/assets

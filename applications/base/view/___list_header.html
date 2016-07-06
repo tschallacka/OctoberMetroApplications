@@ -1,0 +1,9 @@
+<div class="list-container"  data-appid="<?= $this->getApplicationID();?>">
+	<input type="search"
+		value="<?=$searchValue?>"
+		data-search-in-list-element data-apprequest-data="listName:'<?=$listName?>'"
+		class="form-control icon search"
+		title="Use % as a wild card for multiple characters. Use _ as a wildcard for a single character"
+		style="   height:20px;
+		          width:calc(100% - 44px);">
+	<div id="<?= $this->getId('list-container') ?>">

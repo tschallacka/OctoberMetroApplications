@@ -1,0 +1,76 @@
+<div class="control-list">
+    <table class="table data" data-control="rowlink">
+        <thead>
+
+            <tr>
+            	<?php foreach($columsToList as $column => $properties):?>
+                <th class="<?= ($orderColumn == $column ? 'active' : '')?> sort-<?= ($orderColumn == $column ? $sortDirection : 'desc')?> '">
+                	<a data-apprequest="onSort"
+                		data-apprequest-data="listName:'<?=$listName?>',column:'<?= $column ?>'"
+            			href="javascript:void(0)">
+
+            				<?= $properties->label ?>
+    				</a>
+				</th>
+				<?php endforeach; ?>
+            </tr>
+        </thead>
+        <tbody>
+        	<?php foreach($list as $item):?>
+            <tr <?php if(!empty($destinationLink)):?>data-open-window-url="<?= Backend::url($destinationLink,[$item->getKey()])?>" style="cursor:pointer;"<?php endif;?>>
+
+            	<?php foreach($columsToList as $column => $label):?>
+                	<td>
+                			<?= $item->getAttribute($column); ?>
+        			</td>
+            	<?php endforeach; ?>
+
+            </tr>
+            <?php endforeach; ?>
+        </body>
+        <tfoot>
+            <tr>
+                <td colspan="8" class="list-pagination nolink">
+                    <div class="control-pagination">
+						<?php if($page -1 > -1):?>
+                        	<a href="javascript:void(0)"
+                            	data-apprequest="onPaginate"
+                    			data-apprequest-data="listName:'<?=$listName?>',page:<?= $page - 1?>"
+                    			class="page-back"
+                    			title="Previous page"></a>&nbsp;
+            			<?php endif;?>
+
+                        <span class="page-iteration"><?= $start ?>-<?= $to ?> of <?= $totalCount ?></span>
+
+            			<?php if($to < $totalCount): ?>
+                        	<a href="javascript:void(0)"
+                            	data-apprequest="onPaginate"
+                    			data-apprequest-data="listName:'<?=$listName?>',page:<?= $page + 1?>"
+                            	class="page-next"
+                            	title="Next page"></a>
+                    	<?php endif;?>
+                    	<?php
+                    	       if(($to < $totalCount)||($page -1 > -1)):  ?>
+                                <select class="form-control custom-select"
+                                	id="<?=$this->getId('jump-to-page')?>">
+                                	<?php for($c=0;$c < ceil($totalCount / $limitPerPage);$c++):?>
+                                    	<option
+                                    	   <?php if($c==$page):?>
+                                    	   		selected="selected"
+                                	   		<?php endif;?>
+                            	   			value="<?= $c ?>">
+                            	   				Page <?= $c+1 ?>
+                        	   				</option>
+                                    <?php endfor;?>
+                                </select>
+                                <a class="btn btn-success" style="color:white;"
+                                		data-apprequest="onPaginate"
+                    					data-apprequest-data="listName:'<?=$listName?>',page:$('#<?=$this->getId('jump-to-page')?> option:selected').val()">Jump</a>
+
+                    	<?php endif;?>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

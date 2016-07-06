@@ -1,0 +1,12 @@
+
+        <div class="unselectable modal-header application-modal-header" data-drag-handle>
+            <button type="button" class=" unselectable close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="unselectable modal-title" data-drag-handle><?= $title ?></h4>
+        </div>
+        <div class="modal-body <?= $this->getId('modal')?> application-modal-body" >
+			<?= $contents ?>
+		</div>
+
+        <div class="modal-footer application-modal-footer" style="clear:both">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
