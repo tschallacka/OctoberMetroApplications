@@ -457,7 +457,7 @@ class ApplicationBase {
         }
 
         $vars =[
-            'searchValue' => getListSearchValue($listName),
+            'searchValue' => $this->getListSearchValue($listName),
 
             'orderColumn' => $this->getSession($listName.'orderColumn',$config->defaultColumnToSort),
 
