@@ -1,0 +1,8 @@
+applications/*
+!applications/widgets
+!applications/ApplicationBase.php
+!applications/ApplicationController.php
+!applications/assets
+composer
+autoload.php
+giggsey

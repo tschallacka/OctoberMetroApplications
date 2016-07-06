@@ -1,18 +1,50 @@
 +function ($) { "use strict";
-	var appName = 'MasterApplicationControl';
+	var appName = 'ListSearchBarHandler';
 		
 	/**
 	 * Needs to be here, do not edit
 	 */
-	var appID = appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();var appDataHandler = '[data-apprequest]';	var oc = 'oc.'+appName; var Base = $.oc.foundation.base, BaseProto = Base.prototype; var Application = function (element, options) { this.$el = $(element); this.options = options || {}; this.appID = appID; this.appName = appName; this.oc = oc; $.oc.foundation.controlUtils.markDisposable(element); Base.call(this); this.sysInit(); }; Application.prototype = Object.create(BaseProto); Application.prototype.constructor = Application;
+	var appID = appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();var appDataHandler = '[data-search-in-list-element]';	var oc = 'oc.'+appName; var Base = $.oc.foundation.base, BaseProto = Base.prototype; var Application = function (element, options) { this.$el = $(element); this.options = options || {}; this.appID = appID; this.appName = appName; this.oc = oc; $.oc.foundation.controlUtils.markDisposable(element); Base.call(this); this.sysInit(); }; Application.prototype = Object.create(BaseProto); Application.prototype.constructor = Application;
     
     Application.prototype.handlers = function(type) {
-    	
-    	this.$el[type]('click',this.proxy(this.onClick));
+    	if(type == 'on') {
+    		this.lastTimeout = 0;
+    		this.timeoutsToClear = [];
+    	}
+    	else {
+    		this.lastTimeout = null;
+    		this.clearTimeouts();
+    		this.timeoutsToClear = null;
+    		
+    	}
+    	this.$el[type]('keydown',this.proxy(this.keyDown));
     };
     
-    
-    
+    Application.prototype.clearTimeouts = function() {
+    	var foo;
+		while(foo = this.timeoutsToClear.pop()) {
+			window.clearTimeout(foo);
+		}
+    }
+    Application.prototype.sendSearch = function() {
+    	var val = this.$el.val();
+    	/**
+    	 * Pass application ID so right application can handle the call
+    	 */
+    	var appid = this.$el.closest('[data-appid]').data('appid');
+    	
+    	var rawdata = this.$el.data('apprequest-data');
+    	var data = {};
+    	if(rawdata) {
+    		eval('data={'+rawdata+'}');
+    	}
+    	data['searchValue'] = val;
+    	data['complete'] = this.proxy(this.afterRefresh);
+    	this.$el.appRequest(appid,'onListSearch',data);
+    }
+    Application.prototype.afterRefresh = function() {
+    	this.$el.focus();
+    }
     /**
      * Application JS is bound to any element that has [data-apprequest] defined in it's tag.
      * Make sure that element is a child of a tag containin data-appid so the ajax request
@@ -20,77 +52,15 @@
      * @param e
      */
     
-    Application.prototype.onClick = function(e) {
-    	/**
-    	 * Find the closest originating event caster(in case event originated from child element
-    	 */
-    	var $this = $(e.target).closest('[data-apprequest]');
-    	
-    	/**
-    	 * Prepare data object
-    	 */
-    	var data = {};
-    	
-    	/**
-    	 * Pass application ID so right application can handle the call
-    	 */
-    	var appid = $this.closest('[data-appid]').data('appid');
-    	/**
-    	 * The request function within the application
-    	 */
-    	var request = $this.data('apprequest');
-    	
-    	/**
-    	 * Test for existance of raw data
-    	 */
-    	var rawdata = $this.data('apprequest-data');
-    	var data = {};
-    	if(rawdata) {
-    		eval('data={'+rawdata+'}');
+    Application.prototype.keyDown = function(e) {
+    	var currentTime = new Date().getTime();
+    	if(this.timeoutsToClear.length > 1) {
+    	    this.clearTimeouts();	
     	}
+    	this.timeoutsToClear.push(window.setTimeout(this.proxy(this.sendSearch),500));
+    	 
     	
-    	var success = $this.data('apprequest-success');
-    	if(success) {
-    		eval('data.success = function(data,status,xhr){'+success+'}');
-    	}
-    	else {
-    	    data.success = function(data) {console.log(data);};
-    	}
     	
-    	var update = $this.data('apprequest-update');
-    	if(update) {
-    		eval('data.update = {'+update+'}');
-    	}
-    	
-    	var confirm = $this.data('apprequest-confirm');
-    	if(confirm) {
-    		data.confirm = confirm;
-    	}
-    	
-    	var redirect = $this.data('apprequest-redirect');
-    	if(redirect) {
-    		data.redirect = redirect;
-    	}
-    	
-    	var beforeUpdate = $this.data('apprequest-beforeUpdate');
-    	if(beforeUpdate) {
-    		eval('data.beforeUpdate = function(data,status,xhr){'+beforeUpdate+'}');
-    	}
-    	
-    	var error = $this.data('apprequest-error');
-    	if(error) {
-    		eval('data.error = function(xhr,status,error){'+error+'}');
-    	}
-    	
-    	var complete = $this.data('apprequest-complete');
-    	if(complete) {
-    		eval('data.complete = function(context,textStatus,xhr){'+complete+'}');
-    	}
-    	
-    	/**
-    	 * Send apprequest
-    	 */
-    	$this.appRequest(appid,request,data);
     	
     }
     
@@ -152,19 +122,13 @@
     	    handler:'onAppRequest',
     		extraData:{
     			appid:appid,
-    			request:request,
-    			
+    			request:request
     		}
     	};
     	sendobject.extraData.data = data;
-    	
-    	$.popup(sendobject); 
+    	$.popup(sendobject);
     	
     }
-    
-    $.fn.extend({getAppId : function() {
-    	return this.closest('[data-appid]').data('appid');
-    }});
     $.fn[appName] = function (option) {
         var args = Array.prototype.slice.call(arguments, 1), items, result
         

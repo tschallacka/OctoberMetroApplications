@@ -22,3 +22,28 @@
 .app-container {
     display: inline-block;
 }
+.unselectable {
+    -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+
+   /*
+     Introduced in IE 10.
+     See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+   */
+   -ms-user-select: none;
+   user-select: none;
+    
+ }
+ .cursorhide {
+     cursor:none !important;   
+ }
+[data-drag-handle] {
+    cursor: default;
+ }   
+@media (min-width: 768px) {
+    .modal-dialog.dragging {
+        width: 600px;
+        margin: 0px 0px 0px 0px;
+    }
+}

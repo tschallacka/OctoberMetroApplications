@@ -16,6 +16,7 @@ class ApplicationController extends Controller
     {
         parent::__construct();
         $this->loadAssets();
+
     }
     private function getAppContainer($app) {
         return '<div class="app-container '.$app->getApplicationID().'">'.
@@ -41,6 +42,7 @@ class ApplicationController extends Controller
             $str .= $this->getAppContainer($app);
 
         }
+
         return $str;
     }
 
@@ -74,6 +76,10 @@ class ApplicationController extends Controller
 
         $this->addJs($this->getUrlBase('assets/js/metro.js'), 'ExitControl.Desktop');
         $this->addJs($this->getUrlBase('assets/js/application.js'), 'ExitControl.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/listsearchelement.js'), 'ExitControl.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/linkopenclick.js'), 'ExitControl.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/apppopup.js'), 'ExitControl.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/draggable.js'), 'ExitControl.Desktop');
 
     }
 
