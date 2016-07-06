@@ -1,5 +1,5 @@
 +function ($) { "use strict";
-	var appName = 'LinkOpenClick';
+	var appName = 'AppOpenPopupHandlerWithDataAttributeTags';
 		
 	/**
 	 * Needs to be here, do not edit
@@ -7,7 +7,7 @@
 	var appID = appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();var appDataHandler = '[data-app-popup]';	var oc = 'oc.'+appName; var Base = $.oc.foundation.base, BaseProto = Base.prototype; var Application = function (element, options) { this.$el = $(element); this.options = options || {}; this.appID = appID; this.appName = appName; this.oc = oc; $.oc.foundation.controlUtils.markDisposable(element); Base.call(this); this.sysInit(); }; Application.prototype = Object.create(BaseProto); Application.prototype.constructor = Application;
     
     Application.prototype.handlers = function(type) {
-    	
+    	console.log(this.$el.get(0).hasAttribute('data-app-popup'));
     	this.$el[type]('click',this.proxy(this.onClick));
     };
     
@@ -19,7 +19,13 @@
      */
     
     Application.prototype.onClick = function(e) {
-    	this.$el.appPopup(this.$el.getAppId(),this.$el.data('popup-handler'));
+    	if(this.$el.get(0).hasAttribute('data-popup-handler')) {
+    		var data = {};
+    		if(this.$el.get(0).hasAttribute('data-popup-data')) {
+    			eval('data = {'+this.$el.data('popup-data')+'}');
+    		}
+    		this.$el.appPopup(this.$el.getAppId(),this.$el.data('popup-handler'),data);
+    	}
     	
     	
     	
@@ -125,8 +131,11 @@
 
     // Add this only if required
     $(document).render(function (){
+    	
     	var $elems = $(appDataHandler);
-    	$elems[appName]();
+    	if($elems.length > 0) {
+    		$elems[appName]();
+    	}
     	
     })
 
