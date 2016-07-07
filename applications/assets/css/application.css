@@ -47,7 +47,13 @@
         margin: 0px 0px 0px 0px;
     }
 }
+
 .metro-popup-content {
+    pointer-events: all;
     border : 2px outset #eee;
     background-color:white;
+}
+
+.metro-control {
+    pointer-events: none !important;
 }
