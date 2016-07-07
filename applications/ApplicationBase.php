@@ -9,6 +9,7 @@ use October\Rain\Database\Model;
 use Backend\Widgets\Form;
 use October\Rain\Exception\ApplicationException;
 use Session;
+use ReflectionClass;
 
 class ApplicationBase {
     protected $name = 'n_a';
@@ -22,11 +23,25 @@ class ApplicationBase {
     protected $formFields = [];
     protected $model = null;
     private $applicationID=null;
+    private $baseurl = null;
+    protected $applicationDir = null;
 
     public function bindToController($controller) {
         $this->controller = $controller;
         $this->init();
     }
+
+    /**
+     * returns the directory of the children where they are located.
+     */
+    protected function getDir() {
+        if(is_null($this->applicationDir)) {
+            $reflector = new ReflectionClass(get_class($this));
+            $this->applicationDir = dirname($reflector->getFileName());
+        }
+        return $this->applicationDir;
+    }
+
     /**
      * This gets called after the application is boudn to the controller.
      */
@@ -43,7 +58,8 @@ class ApplicationBase {
                 $old = $this->controller->listConfig;
                 $this->controller->listConfig = [$old];
             }
-            $this->controller->listConfig[$listname] = str_replace('/',DIRECTORY_SEPARATOR,'../../vendor/applications/'.strtolower($this->getName()).'/config/'.$listname.'.yaml');
+
+            $this->controller->listConfig[$listname] = $this->getPath('config/'.$listname.'.yaml');
         }
     }
 
@@ -105,12 +121,32 @@ class ApplicationBase {
     }
 
     /**
-     * Returns the url to the resource relative tot he applications directory
+     * Return the base url to the application directory.
+     */
+    public function getBaseUrl() {
+        if(is_null($this->baseurl)) {
+            $basepath = $this->getDir() . DIRECTORY_SEPARATOR;
+            /**
+             * remove the root directory from the absolute path, to get
+             * our url access point :-)
+             */
+            $basepath = str_replace(base_path(), '', $basepath);
+            /**
+             * Turn directory separators into forward slashes
+             */
+            $basepath = str_replace(DIRECTORY_SEPARATOR,'/',$basepath);
+            $this->baseurl = $basepath;
+        }
+        return $this->baseurl;
+    }
+
+    /**
+     * Returns the url to the resource relative tot the applications directory
      */
     public function getUrl($url='') {
-        $basepath = dirname(__FILE__).DIRECTORY_SEPARATOR;
-        $basepath = str_replace('\\','/',substr($basepath,strpos($basepath,'plugins')-1));
-        return $basepath.strtolower($this->getName()).'/'.$url;
+
+        return $this->getBaseUrl() . $url;
+
     }
 
     /**
@@ -119,8 +155,8 @@ class ApplicationBase {
      */
     public function getPath($resource='') {
 
-        $filepath = __DIR__ . DIRECTORY_SEPARATOR . strtolower($this->getName()) . DIRECTORY_SEPARATOR . $resource;
-
+        //$filepath = __DIR__ . DIRECTORY_SEPARATOR . strtolower($this->getName()) . DIRECTORY_SEPARATOR . $resource;
+        $filepath = $this->getDir() . DIRECTORY_SEPARATOR . $resource;
         if(!file_exists($filepath)) {
 
             $validexts = ['.html','.htm','.php','.txt'];
@@ -180,7 +216,7 @@ class ApplicationBase {
     }
 
     public function getWidget($name,$vars) {
-        $path =__DIR__ . DIRECTORY_SEPARATOR.'widgets/'.$name.'/'.$name;
+        $path =__DIR__ . DIRECTORY_SEPARATOR . 'widgets'. DIRECTORY_SEPARATOR . $name.DIRECTORY_SEPARATOR.$name;
         return $this->renderfile($path, $vars);
     }
     /**
@@ -189,7 +225,7 @@ class ApplicationBase {
      * @param unknown $vars
      */
     public function getPartial($path, $vars) {
-        $filepath = $this->getPath('view/'. $path);
+        $filepath = $this->getPath('view'. DIRECTORY_SEPARATOR . $path);
         return $this->renderfile($filepath,$vars);
 
     }
@@ -260,7 +296,15 @@ class ApplicationBase {
     }
 
     public function getConfig($config) {
-        return $this->makeConfigFromArray(Yaml::parse(file_get_contents($this->getPath('config'.DIRECTORY_SEPARATOR.$config.'.yaml'))));
+
+        return $this->makeConfigFromArray(
+            Yaml::parse(
+                file_get_contents(
+                    $this->getPath('config' .DIRECTORY_SEPARATOR . $config . '.yaml'
+                    )
+                )
+            )
+        );
     }
 
     /**

@@ -1,4 +1,4 @@
-<?php namespace Applications\BaseApplication;
+<?php namespace NamespaceLocation\Applications\BaseApplication;
 use Applications\ApplicationBase;
 
 

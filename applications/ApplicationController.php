@@ -3,7 +3,7 @@
 use Backend\Classes\Controller;
 use Applications\ApplicationBase;
 use October\Rain\Exception\ApplicationException;
-use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+use ReflectionClass;
 
 
 /**
@@ -23,15 +23,36 @@ class ApplicationController extends Controller
                 $app->render().
                 '</div>';
     }
+    private function addApplication($appClass) {
+        $app = new $appClass;
+        if($app instanceof ApplicationBase) {
+            $app->bindToController($this);
+            $this->applications[$app->getApplicationID()] = $app;
+        }
+    }
     public function registerApplication($appName) {
-        $destinationdir = __DIR__.DIRECTORY_SEPARATOR.strtolower($appName);
 
-        if(is_dir($destinationdir)) {
-            $app = '\\Applications\\'.$appName.'\\'.$appName;
-            $app = new $app;
-            if($app instanceof ApplicationBase) {
-                $app->bindToController($this);
-                $this->applications[$app->getApplicationID()] = $app;
+        if(class_exists($appName)) {
+            $this->addApplication($appName);
+        }
+        else {
+            $appSpace = 'Applications';
+            $app = implode('\\',['', $appSpace,$appName,$appName]);
+            if(class_exists($app)) {
+                $this->addApplication($app);
+            }
+            else {
+                $reflector = new ReflectionClass(get_class($this)); // class Foo of namespace A
+                $namespace = $reflector->getNamespaceName();
+                $pluginspace = substr($namespace,0,strpos($namespace,'\\Controller') );
+                $app = implode('\\',['',$pluginspace,$appSpace,$appName,$appName]);
+                if(class_exists($app)) {
+                    $this->addApplication($app);
+                }
+                else {
+                    throw new ApplicationException('Cannot find application '.$appName . '
+                              Please consider using full namespace to register the application');
+                }
             }
         }
     }

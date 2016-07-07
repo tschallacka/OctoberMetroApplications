@@ -2,26 +2,100 @@
 
 if(array_key_exists(1, $argv)) {
     $command = $argv[1];
+    if($command == 'help') {
+        echo "The following commands are available:\n\n".
+            "\ncreate:application AuthorName.PluginName ApplicationName\n".
+            "     Attempt to create an application in the given\n".
+            "     authorname/pluginname directory\n".
+            "\nremove:application AuthorName.PluginName ApplicationName\n".
+            "     Attempt to remove an application in the given\n".
+            "     authorname/pluginname directory\n".
+            "\nget:plugindir\n".
+            "     Check if this script is able to correctly\n".
+            "     determine your plugin directory\n".
+            "\nget:plugindir\n".
+            "     Get the directory where this script will\n".
+            "     try to make an applications directory in\n";
+    }
     if($command == 'create:application') {
-        if(array_key_exists(2, $argv)) {
-            createApplication($argv[2]);
+        if(array_key_exists(2, $argv) && array_key_exists(3, $argv)) {
+            createApplication($argv[2],$argv[3]);
+        }
+        else {
+            echo "\n\ncreate:application expects two parameters. AuthorName.Pluginname as the first\n".
+                "parameter, and the name of the application as the second\n".
+                "A full command would look like:\n\n".
+                "php appCreate create:application Foo.Bar BazApplication\n\n";
         }
     }
+    if($command == 'get:plugindir') {
+        echo getPluginDir();
+    }
+    if($command == 'get:namespacedir') {
+        echo dirFromNameSpace($argv[2]);
+    }
+
     if($command == 'remove:application') {
-        if(array_key_exists(2,$argv)) {
-            removeApplication($argv[2]);
+        if(array_key_exists(2,$argv) && array_key_exists(3,$argv)) {
+            removeApplication($argv[2],$argv[3]);
+        }
+        else {
+            echo "\n\nremove:application expects two parameters. AuthorName.Pluginname as the first\n".
+                "parameter, and the name of the application as the second\n".
+                "A full command would look like:\n\n".
+                "php appCreate remove:application Foo.Bar BazApplication\n\n";
         }
     }
 }
-function removeApplication($appname) {
+function findNestedPluginDir() {
+    $it = new RecursiveDirectoryIterator(__DIR__);
+
+    foreach(new RecursiveIteratorIterator($it) as $file)
+    {
+        if(is_dir($file)) {
+            $dirname = dirname($file);
+            if(strpos(strrev($dirname),strrev('plugins')) === 0) {
+                return $dirname;
+            }
+        }
+    }
+    throw new Exception("plugins dir not found!");
+}
+function getPluginDir() {
+    if(strpos(__DIR__,'plugins') !== false) {
+        return substr(__DIR__, 0, strpos(__DIR__,'plugins')+strlen('plugins'));
+    }
+    else {
+        return findNestedPluginDir();
+    }
+}
+
+function dirFromNameSpace($namespace) {
+    $split = explode('.',strtolower($namespace));
+    $author = $split[0];
+    $plugin = $split[1];
+    $plugindir = getPluginDir();
+    $basedir = implode(DIRECTORY_SEPARATOR,[$plugindir,$author,$plugin]);
+    return $basedir;
+}
+
+function removeApplication($appNamespace,$appname) {
     $destinationdir = __DIR__.DIRECTORY_SEPARATOR.'applications'.DIRECTORY_SEPARATOR.strtolower($appname);
+    $destinationdir = dirFromNameSpace($appNamespace).DIRECTORY_SEPARATOR.'applications'.DIRECTORY_SEPARATOR;
+    $lowercase = strtolower($appname);
     if(is_dir($destinationdir)) {
         rrmdir($destinationdir);
     }
 }
-function createApplication($appname) {
+
+function createApplication($appNamespace, $appname) {
     $basedir = __DIR__.DIRECTORY_SEPARATOR.'base'.DIRECTORY_SEPARATOR.'baseApplication'.DIRECTORY_SEPARATOR;
-    $destinationdir = __DIR__.DIRECTORY_SEPARATOR.'applications'.DIRECTORY_SEPARATOR;
+
+    $destinationdir = dirFromNameSpace($appNamespace).DIRECTORY_SEPARATOR.'applications';
+    if(!is_dir($destinationdir)) {
+        mkdir($destinationdir);
+    }
+    $destinationdir .= DIRECTORY_SEPARATOR;
     $lowercase = strtolower($appname);
 
     if(!file_exists($destinationdir.$appname.'.php') && !is_dir($destinationdir.$lowercase)) {
@@ -29,8 +103,7 @@ function createApplication($appname) {
 
         $contents = file_get_contents($basedir.'BaseApplication.php');
         $contents = str_replace('BaseApplication',$appname,$contents);
-
-
+        $contents = str_replace('NamespaceLocation',str_replace('.','\\',$appNamespace),$contents);
 
         mkdir($destinationdir.$lowercase);
         $destinationdir .= $lowercase.DIRECTORY_SEPARATOR;
@@ -54,7 +127,6 @@ function createApplication($appname) {
         $contents = file_get_contents($basedir.$location);
         $contents = str_replace('BaseApplication',$appname,$contents);
         file_put_contents($destinationdir.$location, $contents);
-        exec("php composer.phar update");
     }
 
 }
