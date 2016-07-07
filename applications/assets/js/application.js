@@ -147,24 +147,32 @@
     	sendobject.data.data = data;
     	$.request('onAppRequest', sendobject);
     }
+    
+    /**
+     * Open a popup model with an app :-)
+     */
     $.fn.appPopup = $.appPopup = function(appid,request,data) {
+    	
     	var sendobject = {
     	    handler:'onAppRequest',
     		extraData:{
     			appid:appid,
-    			request:request,
-    			
+    			request:request,       
     		}
     	};
+    	
     	sendobject.extraData.data = data;
     	
     	$.popup(sendobject); 
     	
     }
+   
     
-    $.fn.extend({getAppId : function() {
-    	return this.closest('[data-appid]').data('appid');
-    }});
+    $.getAppId = $.fn.getAppId = function() {
+		return this.closest('[data-appid]').data('appid');
+	}
+    
+    
     $.fn[appName] = function (option) {
         var args = Array.prototype.slice.call(arguments, 1), items, result
         

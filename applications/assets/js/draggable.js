@@ -4,7 +4,7 @@
 	/**
 	 * Needs to be here, do not edit
 	 */
-	var appID = appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();var appDataHandler = '[data-draggable]';	var oc = 'oc.'+appName; var Base = $.oc.foundation.base, BaseProto = Base.prototype; var Application = function (element, options) { this.$el = $(element); this.options = options || {}; this.appID = appID; this.appName = appName; this.oc = oc; $.oc.foundation.controlUtils.markDisposable(element); Base.call(this); this.sysInit(); }; Application.prototype = Object.create(BaseProto); Application.prototype.constructor = Application;
+	var appID = appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();var appDataHandler = '[data-drag-handle]';	var oc = 'oc.'+appName; var Base = $.oc.foundation.base, BaseProto = Base.prototype; var Application = function (element, options) { this.$el = $(element); this.options = options || {}; this.appID = appID; this.appName = appName; this.oc = oc; $.oc.foundation.controlUtils.markDisposable(element); Base.call(this); this.sysInit(); }; Application.prototype = Object.create(BaseProto); Application.prototype.constructor = Application;
     
     Application.prototype.handlers = function(type) {
     	var body = $(document.body);
@@ -218,8 +218,59 @@
 
     // Add this only if required
     $(document).render(function (){
-    	var $elems = $(appDataHandler);
-    	$elems[appName]();
+    	var $elems = $(appDataHandler).closest('.modal-content');
+    	
+    	/**
+    	 * Start to do our checks.
+    	 * but only if we have elements to process!
+    	 */
+    	if($elems.length > 0) {
+    		
+    		$elems.each(function(index, elem) {
+    			
+    			var $elem = $(elem);
+    			$elem.addClass('metro-popup-content');
+    			
+    			var $control = $elems.closest('.control-popup');
+    			$control.addClass('metro-control');
+    			
+    			/**
+    			 * Loop through the siblings to find the nearest of each
+    			 * We limit the scope by adding the classes of the elemnts
+    			 * we are looking for.
+    			 * These are not the elements we are looking for...
+    			 */
+	    		var $siblings = $control.parent().children('.popup-backdrop, .metro-control');
+	    		
+	    		/**
+	    		 * Traditional for loop, deal with it.
+	    		 * 
+	    		 */
+	    		for(var c=0;c < $siblings.length;c++) {
+	    			var $current = $($siblings.get(c));
+	    			
+	    			if($current.hasClass('metro-control')) {
+	    				/**
+	    				 * Double check if it's a proper element and such.
+	    				 * We use hide because it's bound in a closure from october
+	    				 * We don't wish to throw errors to octobers code :-)
+	    				 */
+	    				if(c > 0) {
+		    				var $test = $($siblings.get(c-1));
+		    				if($test.hasClass('popup-backdrop')) {
+		    					$test.hide();
+		    				}
+	    				}
+	    			}
+	    			
+	    		}
+	    		
+    		});
+    		
+    		$elems[appName]();
+    	}
+    	
+    	
     	
     })
 

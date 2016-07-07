@@ -47,3 +47,7 @@
         margin: 0px 0px 0px 0px;
     }
 }
+.metro-popup-content {
+    border : 2px outset #eee;
+    background-color:white;
+}
