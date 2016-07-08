@@ -1,19 +1,30 @@
 +function ($) { "use strict";
+
+	/**
+	 * Set here your default application name.
+	 */
 	var appName = 'BaseApplication';
 		
 	/**
-	 * Needs to be here, do not edit
+	 * Needs to be here, do not edit. Some default calculations to make your life easier.s
 	 */
 	var appID = appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();var appDataHandler = '[data-'+appID+']';	var oc = 'oc.'+appName; var Base = $.oc.foundation.base, BaseProto = Base.prototype; var Application = function (element, options) { this.$el = $(element); this.options = options || {}; this.appID = appID; this.appName = appName; this.oc = oc; $.oc.foundation.controlUtils.markDisposable(element); Base.call(this); this.sysInit(); }; Application.prototype = Object.create(BaseProto); Application.prototype.constructor = Application;
     
+	/**
+     * ================================================================================================================
+     *            ****                       edit below this line                             ****
+     * ================================================================================================================
+     */
+	
+	
     Application.prototype.handlers = function(type) {
     	this.$el[type]('click',this.proxy(this.onClick));
     };
     
     
     Application.prototype.onClick = function() {
-    	console.log('whoa');
-    }
+    	console.log(appName + " has been clicked");
+    };
     
     
     
@@ -37,6 +48,10 @@
         this.options = null
 
         BaseProto.dispose.call(this)
+    };
+    
+    Application.prototype.request = function(requestname,data) {
+    	return this.$el.request(this.$el.data('apphandler') + requestname,data);
     }
     
     Application.prototype.sysInit = function() {
@@ -44,7 +59,9 @@
     	this.handlers('on');
     }
     Application.DEFAULTS = {
-        someParam: null
+        appName: appName,
+        appID: appID,
+        appDataHandler: appDataHandler
     }
 
     // PLUGIN DEFINITION
@@ -72,23 +89,23 @@
             	return false;
             }
             ;
-        })
+        });
 
         return result ? result : items
-    }
+    };
 
-    $.fn[appName].Constructor = Application
+    $.fn[appName].Constructor = Application;
 
     $.fn[appName].noConflict = function () {
         $.fn[appName] = old
         return this
-    }
+    };
 
     // Add this only if required
     $(document).render(function (){
     	var $elems = $(appDataHandler);
     	$elems[appName]();
     	
-    })
+    });
 
 }(window.jQuery);

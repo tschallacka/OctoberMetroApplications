@@ -10,8 +10,9 @@ use Backend\Widgets\Form;
 use October\Rain\Exception\ApplicationException;
 use Session;
 use ReflectionClass;
+use Backend\Classes\WidgetBase;
 
-class ApplicationBase {
+class ApplicationBase extends WidgetBase {
     protected $name = 'n_a';
     protected $version = '1.0.0';
     protected $scripts = [];
@@ -25,10 +26,10 @@ class ApplicationBase {
     private $applicationID=null;
     private $baseurl = null;
     protected $applicationDir = null;
+    protected $defaultAlias = 'n_a';
 
-    public function bindToController($controller) {
-        $this->controller = $controller;
-        $this->init();
+    public function bindToController() {
+        parent::bindToController();
     }
 
     /**
@@ -42,12 +43,7 @@ class ApplicationBase {
         return $this->applicationDir;
     }
 
-    /**
-     * This gets called after the application is boudn to the controller.
-     */
-    protected function init() {
 
-    }
     protected function listRender($listname) {
         $this->controller->makeLists();
         return $this->controller->listRender($listname);
@@ -61,6 +57,10 @@ class ApplicationBase {
 
             $this->controller->listConfig[$listname] = $this->getPath('config/'.$listname.'.yaml');
         }
+    }
+
+    protected function createApplicationForm($config_file,$model) {
+
     }
 
     protected function setVersion($version='1.0.0') {
@@ -104,7 +104,7 @@ class ApplicationBase {
 
     }
 
-    public function getId($key) {
+    public function getId($key=null) {
         return $this->getApplicationID().'-'.$key;
     }
 
@@ -230,81 +230,25 @@ class ApplicationBase {
 
     }
 
-    protected function checkWidgets() {
-        if(is_null(self::$widgets)) {
-            self::$widgets = Yaml::parse(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'widgets'.DIRECTORY_SEPARATOR.'widgets.yaml'));
-        }
-    }
-
-    protected function widgetTypeExists($name) {
-        return array_key_exists($name, self::$widgets);
-    }
-
-
-    protected function getWidgetInstance($name,$config) {
-        if($this->widgetTypeExists($name)) {
-            $widget = self::$widgets[$name];
-            return new $widget($this,$config);
-        }
-        return null;
-    }
-
-    public function renderForm($configfile) {
-        $this->checkWidgets();
-
-        $config = $this->getConfig($configfile);
-
-        $ret = '';
-        $this->formFields = [];
-        //echo dump($config);
-        foreach($config->fields as $fieldname => $widgetconfig) {
-            if(isset($widgetconfig->type) && $this->widgetTypeExists($widgetconfig->type)) {
-                $type = $widgetconfig->type;
-            }
-            else {
-                $type = $widgetconfig->type = 'formfield';
-            }
-            $widget = $this->getWidgetInstance($type,$widgetconfig);
-            $widget->setFieldName($fieldname);
-            $this->widgetsinstances[$fieldname] = $widget;
-            $this->formFields[$fieldname] = $widget;
-        }
-        foreach($this->formFields as $field) {
-            $ret .= $field->render();
-        }
-
-        return $ret;
-    }
-
-    public function getFormField($name) {
-
-        if(array_key_exists($name,$this->formFields)) {
-            return $this->formFields[$name];
-        }
-        return null;
-
-    }
-    /**
-     * Returns active registered widget by name;
-     * @param unknown $name
-     */
-    public function getActiveWidget($name) {
-        if(array_key_exists($name,$this->widgetsinstances)) {
-            return $this->widgetsinstances[$name];
-        }
-        return null;
-    }
-
-    public function getConfig($config) {
-
-        return $this->makeConfigFromArray(
-            Yaml::parse(
-                file_get_contents(
-                    $this->getPath('config' .DIRECTORY_SEPARATOR . $config . '.yaml'
+    public function getApplicationConfig($config,$asobjects = true) {
+        if($asobjects) {
+            return $this->makeConfigFromArray(
+                Yaml::parse(
+                    file_get_contents(
+                        $this->getPath('config' .DIRECTORY_SEPARATOR . $config . '.yaml'
+                            )
+                        )
                     )
-                )
-            )
-        );
+            );
+        }
+        else {
+            return Yaml::parse(
+                    file_get_contents(
+                        $this->getPath('config' .DIRECTORY_SEPARATOR . $config . '.yaml'
+                        )
+                    )
+                );
+        }
     }
 
     /**
@@ -412,10 +356,10 @@ class ApplicationBase {
      * Retrieve application sensitive session variable.
      * @param string $key to to store it under
      * @param object $default the value to store
-     */
-    protected function getSession($key,$default=null) {
+     *
+    protected function getSession($key=null,$default=null) {
         return Session::get($this->getApplicationID().$key,$default);
-    }
+    }/
 
     /**
      * Set the session variable in the application
@@ -425,7 +369,8 @@ class ApplicationBase {
      * @param object $data The data to store
      */
     protected function setSession($key,$data) {
-        Session::put($this->getApplicationID().$key,$data);
+        parent::putSession($key,$data);
+        //Session::put($this->getApplicationID().$key,$data);
     }
     /**
      * Default list config is empty
