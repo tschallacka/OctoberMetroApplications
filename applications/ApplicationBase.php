@@ -1,29 +1,25 @@
-<?php namespace Applications;
-use Backend;
+<?php namespace Tschallacka\OctoberMetroApplications\Applications;
+
 use BackendAuth;
 use Yaml;
-use File;
 use stdClass;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use October\Rain\Database\Model;
-use Backend\Widgets\Form;
 use October\Rain\Exception\ApplicationException;
 use Session;
 use ReflectionClass;
 use Backend\Classes\WidgetBase;
-use Backend\Classes\Controller;
 use Illuminate\Database\Query\Expression as Raw;
-use Illuminate\Queue\Connectors\BeanstalkdConnector;
-use ExitControl\ExitUsers\Models\UserSettings;
 
-class ApplicationBase extends WidgetBase {
+
+class ApplicationBase extends WidgetBase 
+{
     protected $name = 'n_a';
     protected $version = '1.0.0';
     protected $scripts = [];
     protected $css = [];
     /**
-     * 
-     * @var \Applications\ApplicationController $controller
+     * @var \Tschallacka\OctoberMetroApplications\Applications\ApplicationController $controller
      */
     protected $controller;
     protected $permissions = [];
@@ -31,25 +27,28 @@ class ApplicationBase extends WidgetBase {
     protected $widgetsinstances = [];
     protected $formFields = [];
     protected $model = null;
-    private $applicationID=null;
+    private $applicationID = null;
     private $baseurl = null;
     protected $applicationDir = null;
     protected $defaultAlias = 'n_a';
 
     use \Backend\Traits\FormModelSaver;
     
-    public function bindToController() { 
+    public function bindToController() 
+    { 
         parent::bindToController();
     }
     
-    public function preInit() {
+    public function preInit() 
+    {
             
     }
 
     /**
      * returns the directory of the children where they are located.
      */
-    protected function getDir() {
+    protected function getDir() 
+    {
         if(is_null($this->applicationDir)) {
             $reflector = new ReflectionClass(get_class($this));
             $this->applicationDir = dirname($reflector->getFileName());
@@ -61,7 +60,8 @@ class ApplicationBase extends WidgetBase {
      * Render a list via the controller list render
      * @param string $listname name of the list config in the controller
      */
-    protected function listRender($listname) {
+    protected function listRender($listname) 
+    {
         $this->controller->makeLists();
         return $this->controller->listRender($listname);
     }
@@ -72,7 +72,8 @@ class ApplicationBase extends WidgetBase {
      *              A configuration.yaml with the name of the "$listname.yaml" needs to be placed
      *              In the applications config directory.
      */
-    protected function addListConfiguration($listname) {
+    protected function addListConfiguration($listname) 
+    {
 
         if(property_exists($this->controller,'listConfig')) {
 
@@ -88,7 +89,8 @@ class ApplicationBase extends WidgetBase {
 
     }
 
-    protected function createApplicationForm($config_file,$model,$context='create') {
+    protected function createApplicationForm($config_file,$model,$context='create') 
+    {
         
         $config = $this->getApplicationConfig($config_file,false);
         $config->model = $model;
@@ -108,7 +110,8 @@ class ApplicationBase extends WidgetBase {
      * Set the application version
      * @param string $version
      */
-    protected function setVersion($version='1.0.0') {
+    protected function setVersion($version='1.0.0') 
+    {
         $this->version = $version;
     }
 
@@ -116,7 +119,8 @@ class ApplicationBase extends WidgetBase {
      * Geta associated Model
      * @return Model
      */
-    public function getModel() {
+    public function getModel() 
+    {
         return $this->model;
     }
 
@@ -124,26 +128,32 @@ class ApplicationBase extends WidgetBase {
      * Set model to be used with application instance
      * @param Model $model
      */
-    public function setModel(Model $model = null) {
+    public function setModel(Model $model = null) 
+    {
         $this->model = $model;
     }
 
     /**
      * Gets the application version
-     * @return version
+     * @return string 
      */
-    public function getVersion() {
+    public function getVersion() 
+    {
         return $this->version;
     }
+    
     /**
      * Returns a javascript data hanlder 
      * @param string $name The name to add
      * @return string data-$appId-$name
      */
-    public function getDataHandler($name='') {
+    public function getDataHandler($name='') 
+    {
         return 'data-'.$this->getApplicationID().'-'.$name;
     }
-    private function generateApplicationID() {
+    
+    private function generateApplicationID() 
+    {
 
         $appID = preg_replace('/[^a-z]+/i','',$this->name);
         $appID = preg_replace('/(.)([A-Z])/','$1-$2',$appID);
@@ -152,8 +162,8 @@ class ApplicationBase extends WidgetBase {
 
     }
 
-    public function getApplicationID() {
-
+    public function getApplicationID() 
+    {
         if(is_null($this->applicationID)) {
             $this->generateApplicationID();
         }
@@ -161,7 +171,8 @@ class ApplicationBase extends WidgetBase {
 
     }
 
-    public function getId($key=null) {
+    public function getId($key=null) 
+    {
         return $this->getApplicationID().'-'.$key;
     }
 
@@ -169,13 +180,15 @@ class ApplicationBase extends WidgetBase {
     /**
      * Returns an array() of the scripts this application uses
      */
-    public final function getScripts() {
+    public final function getScripts() 
+    {
         $ret = [];
         foreach($this->scripts as $value) {
-            $ret[] = $this->getUrl('js/'.$value);
+            $ret[] = $this->getUrl('assets/js/'.$value);
         }
         return $ret;
     }
+    
     /**
      * Saves a from model from a form widget
      * @param Model $model
@@ -193,7 +206,8 @@ class ApplicationBase extends WidgetBase {
     /**
      * Return the base url to the application directory.
      */
-    public function getBaseUrl() {
+    public function getBaseUrl() 
+    {
         if(is_null($this->baseurl)) {
             $basepath = $this->getDir() . DIRECTORY_SEPARATOR;
             /**
@@ -213,17 +227,17 @@ class ApplicationBase extends WidgetBase {
     /**
      * Returns the url to the resource relative tot the applications directory
      */
-    public function getUrl($url='') {
-
+    public function getUrl($url='') 
+    {
         return $this->getBaseUrl() . $url;
-
     }
 
     /**
      * Returns the path to the given resource, relative from the applications root path
      * @param string $resource
      */
-    public function getPath($resource='') {
+    public function getPath($resource='') 
+    {
 
         //$filepath = __DIR__ . DIRECTORY_SEPARATOR . strtolower($this->getName()) . DIRECTORY_SEPARATOR . $resource;
         $filepath = $this->getDir() . DIRECTORY_SEPARATOR . $resource;
@@ -270,11 +284,12 @@ class ApplicationBase extends WidgetBase {
     /**
      * Returns an array() of the css files this application uses
      */
-    public final function getCSS() {
+    public final function getCSS() 
+    {
         $ret = [];
 
         foreach($this->css as $value) {
-            $ret[] = $this->getUrl('css/'.$value);
+            $ret[] = $this->getUrl('assets/css/'.$value);
         }
         return $ret;
     }
@@ -282,26 +297,30 @@ class ApplicationBase extends WidgetBase {
     /**
      * Returns application name
      */
-    public function getName() {
+    public function getName() 
+    {
         return $this->name;
     }
 
-    public function getWidget($name,$vars) {
+    public function getWidget($name,$vars) 
+    {
         $path =__DIR__ . DIRECTORY_SEPARATOR . 'widgets'. DIRECTORY_SEPARATOR . $name.DIRECTORY_SEPARATOR.$name;
         return $this->renderfile($path, $vars);
     }
+    
     /**
      * Renders a partial in the view directory
-     * @param unknown $path
-     * @param unknown $vars
+     * @param string $path
+     * @param array $vars
      */
-    public function getPartial($path, $vars) {
+    public function getPartial($path, $vars) 
+    {
         $filepath = $this->getPath('view'. DIRECTORY_SEPARATOR . $path);
         return $this->renderfile($filepath,$vars);
-
     }
 
-    public function getApplicationConfig($config,$asobjects = true) {
+    public function getApplicationConfig($config,$asobjects = true) 
+    {
         if($asobjects) {
             return $this->makeConfigFromArray(
                 Yaml::parse(
@@ -337,7 +356,7 @@ class ApplicationBase extends WidgetBase {
      * Property values are converted to camelCase and are not set if one already exists.
      * @param array $configArray Config array.
      * @param boolean $strict To return an empty object if $configArray is null
-     * @return stdObject The config object
+     * @return \stdClass The config object
      */
     public function makeConfigFromArray($configArray = [],$strict = true)
     {
@@ -373,12 +392,11 @@ class ApplicationBase extends WidgetBase {
                 $object->{$name} = $value;
             }
         }
-
         return $object;
     }
 
-    private function renderfile($filepath, $vars) {
-
+    private function renderfile($filepath, $vars) 
+    {
         $this->vars = $vars;
         extract($vars);
         ob_start();
@@ -389,22 +407,25 @@ class ApplicationBase extends WidgetBase {
 
     /**
      * Renders a popup model that can be returned.
-     * @param unknown $title The title of the popup modal
-     * @param unknown $content The content to display.
+     * @param string $title The title of the popup modal
+     * @param string $content The content to display.
      */
-    public function renderPopup($title,$content,$appModalID='popup') {
+    public function renderPopup($title,$content,$appModalID='popup') 
+    {
         return $this->render('___data-popup.html',[
             'contents' => $content,
             'title' => $title,
         	'appModalID' => $appModalID,
         ]);
     }
+    
     /**
      * Renders the application partial as requested. Default is just app.html.
      * @param string $file The file to render
      * @param array $vars Variables to pass along as values to the html file for rendering
      */
-    public function render($file='app', $vars=[]) {
+    public function render($file='app', $vars=[]) 
+    {
         $render = true;
         $count = 0;        
         
@@ -428,13 +449,15 @@ class ApplicationBase extends WidgetBase {
      * @param string $listName
      * @throws ApplicationException
      */
-    protected function renderList($listName,$withWrap = true) {
+    protected function renderList($listName,$withWrap = true) 
+    {
         $list = $this->getList($listName);
 
         return  ($withWrap ? $this->render('___list_header.html',$list):'').
                 $this->render('___list.html',$list).
                 ($withWrap ? $this->render('___list_footer.html',$list):'');
     }
+    
     /**
      * Retrieve application sensitive session variable.
      * @param string $key to to store it under
@@ -451,7 +474,8 @@ class ApplicationBase extends WidgetBase {
      * @param string $key The key to save under
      * @param object $data The data to store
      */
-    protected function setSession($key,$data) {
+    protected function setSession($key,$data) 
+    {
         parent::putSession($key,$data);
         //Session::put($this->getApplicationID().$key,$data);
     }
@@ -491,6 +515,7 @@ class ApplicationBase extends WidgetBase {
      */
     protected $listConfig = [
     ];
+    
     /**
     * My code sample
     * <pre>
@@ -509,10 +534,11 @@ class ApplicationBase extends WidgetBase {
     /**
      * Provide a Class to use as basis for the list.
      * In the closure define which fields to Select.
-     * @param unknown $class The class to select
-     * @param unknown $closure
+     * @param string $class The class to select
+     * @param callable $closure
      */
-    protected function getList($listName) {
+    protected function getList($listName) 
+    {
         $config = $this->listConfig->{$listName};
         $closure = (property_exists($config,'columnsSelectClosure')  ? $config->columnsSelectClosure : null);
         $handleSelectInClosure = (property_exists($config,'handleSelectInClosure')  ? $config->columnsSelectClosure === 'true' || $config->columnsSelectClosure == true || $config->columnsSelectClosure == 1 : false);
@@ -705,10 +731,11 @@ class ApplicationBase extends WidgetBase {
     }
     /**
      * Ajax handler for sorting of lists
-     * @param unknown $data
+     * @param array $data
      * @return string[]
      */
-    public function onSort($data) {
+    public function onSort($data) 
+    {
         $listName = $data['listName'];
         $config = $this->listConfig->{$listName};
 
@@ -726,11 +753,13 @@ class ApplicationBase extends WidgetBase {
         $contents = $this->renderList($listName,false);
         return ['#'.$this->getId('list-container') => $contents];
     }
+    
     /**
      * Ajax handler for paging through lists
-     * @param unknown $data
+     * @param array $data
      */
-    public function onPaginate($data) {
+    public function onPaginate($data) 
+    {
         $listName = $data['listName'];
         $config = $this->listConfig->{$listName};
         $model = $config->model;
@@ -749,24 +778,29 @@ class ApplicationBase extends WidgetBase {
         $contents = $this->renderList($listName,false);
         return ['#'.$this->getId('list-container') => $contents];
     }
+    
     /**
      * Returns the current search value for given list
      * @param string $listName
      */
-    public function getListSearchValue($listName,$default='') {
+    public function getListSearchValue($listName,$default='') 
+    {
         return $this->getSession($listName.'searchValue',$default);
     }
+    
     /**
      * Changes the current search value for given list
      * @param string $listName The name of the list
      * @param string $value The search key
      */
-    public function setListSearchValue($listName,$value) {
+    public function setListSearchValue($listName,$value) 
+    {
         $this->setSession($listName.'searchValue',$value);
         Session::save();
     }
 
-    public function onListSearch($data) {
+    public function onListSearch($data) 
+    {
         $listName = $data['listName'];
         $searchValue = trim($data['searchValue']);
 

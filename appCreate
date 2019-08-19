@@ -108,17 +108,17 @@ function createApplication($appNamespace, $appname) {
         mkdir($destinationdir.$lowercase);
         $destinationdir .= $lowercase.DIRECTORY_SEPARATOR;
         file_put_contents($destinationdir.$appname.'.php', $contents);
-
-        mkdir($destinationdir.'css');
-        mkdir($destinationdir.'js');
+        mkdir($destinationdir.'assets');
+        mkdir($destinationdir.'assets'.DIRECTORY_SEPARATOR.'css');
+        mkdir($destinationdir.'assets'.DIRECTORY_SEPARATOR.'js');
         mkdir($destinationdir.'view');
 
-        $location = 'css'.DIRECTORY_SEPARATOR.'style.css';
+        $location = 'assets'.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.'style.css';
         $contents = file_get_contents($basedir.$location);
         $contents = str_replace('BaseApplication',$appname,$contents);
         file_put_contents($destinationdir.$location, $contents);
 
-        $location = 'js'.DIRECTORY_SEPARATOR.'script.js';
+        $location = 'assets'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR.'script.js';
         $contents = file_get_contents($basedir.$location);
         $contents = str_replace('BaseApplication',$appname,$contents);
         file_put_contents($destinationdir.$location, $contents);

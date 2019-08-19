@@ -1,62 +1,64 @@
-<?php namespace Applications;
+<?php namespace Tschallacka\OctoberMetroApplications\Applications;
 
-use Backend\Classes\Controller;
-use Applications\ApplicationBase;
 use October\Rain\Exception\ApplicationException;
 use ReflectionClass;
+use Backend\Classes\ControllerBehavior;
 
 
 /**
  * User Applications Back-end Controller
  */
-class ApplicationController extends Controller
+class ApplicationController extends ControllerBehavior
 {
     protected $applications = [];
-    public function __construct()
+    public function __construct($controller)
     {
-        parent::__construct();
+        parent::__construct($controller);
         $this->loadAssets();
-
     }
-    private function getAppContainer($app) {
-        return '<div class="app-container '.$app->getApplicationID().'">'.
+    
+    private function getAppContainer($app) 
+    {
+        return '<div class="app-container ' . $app->getApplicationID() . '">'.
                 $app->render().
                 '</div>';
     }
     
-    private function addApplication($appClass,$name) {
-        $app = new $appClass($this);
+    private function addApplication($appClass, $name) 
+    {
+        $app = new $appClass($this->controller);
         if($app instanceof ApplicationBase) {
             $app->alias = $name;
             $this->applications[$app->getApplicationID()] = $app;
-            if(!property_exists($this, 'widget')) {
-
-                dd($this);
-            }
             $app->bindToController();
             $app->preInit();
             return $app->getApplicationID();
         }
     }
-    public function getApplication($appId) {
+    
+    public function getApplication($appId) 
+    {
         if(array_key_exists($appId, $this->applications)) {
             return $this->applications[$appId];
         }
         return null;
     }
     
-    public function renderApp($appId) {
+    public function renderApp($appId) 
+    {
         if($app = $this->getApplication($appId)) {
             return $this->getAppContainer($app);
         }
         return '';
     }
     
-    public function getRegisteredAppsList() {
+    public function getRegisteredAppsList() 
+    {
         return collect(array_keys($this->applications));
     }
     
-    public function registerApplication($appName,$name=null) {
+    public function registerApplication($appName,$name=null) 
+    {
         if(is_null($name)) {
             $name = $appName;
         }
@@ -85,7 +87,9 @@ class ApplicationController extends Controller
         }
     }
 
-    public function renderApps() {
+    public function renderApps() 
+    {
+        $this->loadAssets();
         $str = '';
         foreach($this->applications as $app) {
             $str .= $this->getAppContainer($app);
@@ -99,7 +103,8 @@ class ApplicationController extends Controller
      * @param $config
      * @return \Backend\Widgets\Form
      */
-    public function createApplicationForm($config) {
+    public function createApplicationForm($config) 
+    {
         
         /*
          * Form Widget with extensibility
@@ -115,7 +120,8 @@ class ApplicationController extends Controller
         return $formWidget;
     }
 
-    public function loadApplicationAssets() {
+    public function loadApplicationAssets() 
+    {
         foreach($this->applications as $app) {
             $css = $app->getCSS();
             foreach($css as $val) {
@@ -131,13 +137,14 @@ class ApplicationController extends Controller
     /**
      * Returns the url to the resource relative tot he applications directory
      */
-    public function getUrlBase($url='') {
+    public function getUrlBase($url='') 
+    {
         $basepath = __DIR__.DIRECTORY_SEPARATOR;
         $basepath = str_replace('\\','/',substr($basepath,strpos($basepath,'plugins')-1));
         return $basepath.$url;
     }
 
-    public function loadAssets()
+    private function loadAssets()
     {
         $this->addCss($this->getUrlBase('assets/css/metro.css'), 'Util.Desktop');
         $this->addCss($this->getUrlBase('assets/css/metro-icons.css'), 'Util.Desktop');
@@ -153,7 +160,8 @@ class ApplicationController extends Controller
 
     }
 
-    public function onAppRequest() {
+    public function onAppRequest() 
+    {
         $appid = post('appid');
 
         if(isset($this->applications[$appid])) {

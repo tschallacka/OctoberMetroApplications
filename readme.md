@@ -23,7 +23,7 @@ Then in the controller register your applications you wish to display
             $this->registerApplication('UserSettingsApplication');
             $this->registerApplication('FooBar');
             $this->loadApplicationAssets();
-            BackendMenu::setContext('Util.Desktop', 'desktop', 'userapplications');
+            BackendMenu::setContext('ExitControl.Desktop', 'desktop', 'userapplications');
         }
 		
 To create a new application:
