@@ -3,7 +3,11 @@
             <button type="button" class=" unselectable close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="unselectable modal-title" data-drag-handle><?= $title ?></h4>
         </div>
-        <div class="modal-body <?= $this->getId('modal')?> application-modal-body" >
+        <div class="modal-body <?= $this->getId('modal')?> application-modal-body"
+        	 data-appid="<?= $this->getApplicationID(); ?>"
+			 data-<?= $this->getApplicationID(); ?>
+			 data-app-modal="<?= $appModalID ?>"
+			 data-appHandler="<?= $this->getEventHandler(''); ?>">
 			<?= $contents ?>
 		</div>
 

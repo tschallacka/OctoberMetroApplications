@@ -64,7 +64,10 @@
 	        	foo.top =  last.y+'px';
 	    		this.queue = [];
 	    	}
+	    	try {
 	    	requestAnimationFrame(this.proxy(this.animate));
+	    	}
+	    	catch(e) {}
     	}
     	else {
     		this.animating = false;
@@ -108,6 +111,14 @@
 			if(e.target.hasAttribute('data-drag-handle')) {
 				
 	        		var offset = this.$el.offset();
+	        		/** 
+	        		 * account for bootstrap modals
+	        		 */
+	        		var $modalcontent = $(e.target).closest('.modal');
+	        		if($modalcontent.length > 0) {
+	        			offset.top += $modalcontent.scrollTop();
+	        		}
+	        		
 	        		this.offsetX = e.pageX-offset.left;
 	        		this.offsetY = e.pageY-offset.top;
 	        	
@@ -155,35 +166,7 @@
     // ============================
 
     var old = $.fn[appName]
-    $.fn.appRequest = $.appRequest =  function(appid,request,data) {
-    	var sendobject = {
-    		data:{
-    			appid:appid,
-    			request:request
-    		}
-    	};
-    	var transposefuntions = ['success','update','confirm','redirect','beforeUpdate','error','complete'];
-    	for(var c=0;c<transposefuntions.length;c++) {
-    		if(data && data.hasOwnProperty(transposefuntions[c])) {
-    			sendobject[transposefuntions[c]] = data[transposefuntions[c]];
-    			delete data[transposefuntions[c]];
-    		}
-    	}
-    	sendobject.data.data = data;
-    	$.request('onAppRequest', sendobject);
-    }
-    $.fn.appPopup = $.appPopup = function(appid,request,data) {
-    	var sendobject = {
-    	    handler:'onAppRequest',
-    		extraData:{
-    			appid:appid,
-    			request:request
-    		}
-    	};
-    	sendobject.extraData.data = data;
-    	$.popup(sendobject);
-    	
-    }
+    
     $.fn[appName] = function (option) {
         var args = Array.prototype.slice.call(arguments, 1), items, result
         

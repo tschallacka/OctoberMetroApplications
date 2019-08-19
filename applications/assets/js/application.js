@@ -1,3 +1,123 @@
+(function($){
+  var timeouts = [];
+  
+  var latency = 300;
+  var scrollActive = false;
+  
+  var clearTimeouts = function() {
+	  for(var c=0;c<timeouts.length;c++) {
+		  window.clearTimeout(timeouts[c]);
+	  }
+	  timeouts = [];
+  }
+  
+  var scrollEnd = function($elem) {
+	if(scrollActive) {
+		clearTimeouts();
+		scrollActive = false;
+		$elem.trigger('scroll:end');
+	}
+  }
+  $(window).on('shown.bs.modal',function() {
+	  $fixed = $('.modal').filter(function() {
+		    var $this = $(this);
+		    return $this.css("position") === 'fixed' && $this.data('scroll-trigger-activated') !== true;
+		});
+	  
+	  $fixed.each(function(index,elem) {
+		  var $elem = $(elem);
+		  $elem.data('scroll-trigger-activated',true);
+		  $elem.on('scroll',function(e) {
+			  $(window).trigger(e);
+		  })
+	  });
+  });
+  
+  $(window).scroll(function(e) {
+	  clearTimeouts();
+	  var $elem = $(e.target);
+	  timeouts.push(window.setTimeout(
+			  function() {
+				 scrollEnd($elem);				  
+			  },
+			  latency));
+	  if(!scrollActive) {
+		  scrollActive = true;
+		  $elem.trigger('scroll:start');
+	  }
+  });
+ 
+})(jQuery);
+
+(function($) {
+	
+	$(window).on('mousemove',function(e) {
+		var $elem = $(document.elementFromPoint(e.clientX,e.clientY));
+		if($elem.closest('.modal-content').length == 0 && e.clientX < window.innerWidth-100) {
+			$('.modal').addClass('no-pointer-events');
+		}
+		else {
+			var $modal = $elem.closest('.modal');
+			if($modal.hasClass('no-pointer-events')) {
+				$modal.removeClass('no-pointer-events');
+			}
+		}
+		
+	});
+})(jQuery);
+
+/**
+ * Manages the Z index ordering of application windows.
+ * @param $
+ */
+(function($){
+	
+	var Z = 1050;
+	
+	var $document = $(document);
+	
+	$document.off('focusin.bs.modal');
+	$document.on('shown.bs.modal',function(e) {
+		$(e.target).trigger('click');
+	});
+	$document.on('click','.modal',function(e) {
+		var $target = $(e.currentTarget);
+		$document.off('focusin.bs.modal')
+		if($target.data('current-z-index') != Z) {
+			Z++;
+			
+			if(Z > 1080) {
+				/**
+				 * Resetting order to 1050 to prevent other css issues.
+				 * Gather all te modals, sort them to current order
+				 * set Z index starting from 1050 on each of em.
+				 */
+				Z=1050;
+				$result = $('.modal').sort(function(a,b) {
+					var $a = $(a).data('current-z-index');
+					var $b = $(b).data('current-z-index');
+					if($a == $b) {
+						return 0;
+					}
+					return $a - $b;
+				});
+				$result.each(function(i,e) {
+					
+					var $mod = $(e);
+					$mod.data('current-z-index', Z);
+					$mod.css({'z-index': Z});
+					Z++;
+					
+				});
+				
+			}
+			$target.data('current-z-index', Z);
+			$target.css({'z-index': Z});
+		}
+		
+	})
+}(jQuery))
+
 +function ($) { "use strict";
 	var appName = 'MasterApplicationControl';
 		
@@ -25,7 +145,9 @@
     	 * Find the closest originating event caster(in case event originated from child element
     	 */
     	var $this = $(e.target).closest('[data-apprequest]');
-    	
+    	if($this.length == 0) {
+    		return;
+    	}
     	/**
     	 * Prepare data object
     	 */
@@ -50,12 +172,14 @@
     	}
     	
     	var success = $this.data('apprequest-success');
+    	
     	if(success) {
-    		eval('data.success = function(data,status,xhr){'+success+'}');
+    		data.success = new Function('data', 'status', 'xhr', success);
+    		//eval('data.success = function(data,status,xhr){'+success+'}');
     	}
-    	else {
-    	    data.success = function(data) {console.log(data);};
-    	}
+    	//else {
+    	    //data.success = function(data) {console.log(data);};
+    	//}
     	
     	var update = $this.data('apprequest-update');
     	if(update) {
@@ -84,7 +208,8 @@
     	
     	var complete = $this.data('apprequest-complete');
     	if(complete) {
-    		eval('data.complete = function(context,textStatus,xhr){'+complete+'}');
+    		data.complete = new Function('context','textStatus', 'xhr', complete);
+    		//eval('data.complete = function(context,textStatus,xhr){'+complete+'}');
     	}
     	
     	/**
@@ -148,25 +273,7 @@
     	$.request('onAppRequest', sendobject);
     }
     
-    /**
-     * Open a popup model with an app :-)
-     */
-    $.fn.appPopup = $.appPopup = function(appid,request,data) {
-    	
-    	var sendobject = {
-    	    handler:'onAppRequest',
-    		extraData:{
-    			appid:appid,
-    			request:request,       
-    		}
-    	};
-    	
-    	sendobject.extraData.data = data;
-    	
-    	$.popup(sendobject); 
-    	
-    }
-   
+
     
     $.getAppId = $.fn.getAppId = function() {
 		return this.closest('[data-appid]').data('appid');

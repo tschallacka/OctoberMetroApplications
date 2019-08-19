@@ -1,5 +1,5 @@
 /*!
- * Metro UI CSS v3.0.14 (http://metroui.org.ua)
+ * Metro UI CSS v3.0.15 (http://metroui.org.ua)
  * Copyright 2012-2016 Sergey Pimenov
  * Licensed under MIT (http://metroui.org.ua/license.html)
  */
@@ -15,14 +15,14 @@
 
 var $ = jQuery;
 
+window.METRO_VERSION = '3.0.15';
+
 // Source: js/requirements.js
 if (typeof jQuery === 'undefined') {
     throw new Error('Metro\'s JavaScript requires jQuery');
 }
 
 // Source: js/global.js
-window.METRO_VERSION = '3.0.13';
-
 if (window.METRO_AUTO_REINIT === undefined) window.METRO_AUTO_REINIT = true;
 if (window.METRO_LANGUAGE === undefined) window.METRO_LANGUAGE = 'en';
 if (window.METRO_LOCALE === undefined) window.METRO_LOCALE = 'EN_en';
@@ -32,6 +32,13 @@ if (window.METRO_DEBUG === undefined) window.METRO_DEBUG = true;
 if (window.METRO_CALENDAR_WEEK_START === undefined) window.METRO_CALENDAR_WEEK_START = 0;
 
 window.canObserveMutation = 'MutationObserver' in window;
+
+Number.prototype.format = function(n, x, s, c) {
+    var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
+        num = this.toFixed(Math.max(0, ~~n));
+
+    return (c ? num.replace('.', c) : num).replace(new RegExp(re, 'g'), '$&' + (s || ','));
+};
 
 String.prototype.isUrl = function () {
 var regexp = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
@@ -116,15 +123,15 @@ window.METRO_LOCALES = {
     },
     'fr': {
         months: [
-            "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
-            "Jan", "Fév", "Mars", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"
+            "Janvier", "FÃƒÂ©vrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "AoÃƒÂ»t", "Septembre", "Octobre", "Novembre", "DÃƒÂ©cembre",
+            "Jan", "FÃƒÂ©v", "Mars", "Avr", "Mai", "Juin", "Juil", "AoÃƒÂ»t", "Sept", "Oct", "Nov", "DÃƒÂ©c"
         ],
         days: [
             "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi",
             "Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"
         ],
         buttons: [
-            "Aujourd'hui", "Effacer", "Annuler", "Aide", "Précedent", "Suivant", "Fin"
+            "Aujourd'hui", "Effacer", "Annuler", "Aide", "PrÃƒÂ©cedent", "Suivant", "Fin"
         ]
     },
     'nl': {
@@ -142,42 +149,42 @@ window.METRO_LOCALES = {
     },
     'ua': {
         months: [
-            "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень",
-            "Січ", "Лют", "Бер", "Кві", "Тра", "Чер", "Лип", "Сер", "Вер", "Жов", "Лис", "Гру"
+            "Ã�Â¡Ã‘â€“Ã‘â€¡Ã�ÂµÃ�Â½Ã‘Å’", "Ã�â€ºÃ‘Å½Ã‘â€šÃ�Â¸Ã�Â¹", "Ã�â€˜Ã�ÂµÃ‘â‚¬Ã�ÂµÃ�Â·Ã�ÂµÃ�Â½Ã‘Å’", "Ã�Å¡Ã�Â²Ã‘â€“Ã‘â€šÃ�ÂµÃ�Â½Ã‘Å’", "Ã�Â¢Ã‘â‚¬Ã�Â°Ã�Â²Ã�ÂµÃ�Â½Ã‘Å’", "Ã�Â§Ã�ÂµÃ‘â‚¬Ã�Â²Ã�ÂµÃ�Â½Ã‘Å’", "Ã�â€ºÃ�Â¸Ã�Â¿Ã�ÂµÃ�Â½Ã‘Å’", "Ã�Â¡Ã�ÂµÃ‘â‚¬Ã�Â¿Ã�ÂµÃ�Â½Ã‘Å’", "Ã�â€™Ã�ÂµÃ‘â‚¬Ã�ÂµÃ‘ï¿½Ã�ÂµÃ�Â½Ã‘Å’", "Ã�â€“Ã�Â¾Ã�Â²Ã‘â€šÃ�ÂµÃ�Â½Ã‘Å’", "Ã�â€ºÃ�Â¸Ã‘ï¿½Ã‘â€šÃ�Â¾Ã�Â¿Ã�Â°Ã�Â´", "Ã�â€œÃ‘â‚¬Ã‘Æ’Ã�Â´Ã�ÂµÃ�Â½Ã‘Å’",
+            "Ã�Â¡Ã‘â€“Ã‘â€¡", "Ã�â€ºÃ‘Å½Ã‘â€š", "Ã�â€˜Ã�ÂµÃ‘â‚¬", "Ã�Å¡Ã�Â²Ã‘â€“", "Ã�Â¢Ã‘â‚¬Ã�Â°", "Ã�Â§Ã�ÂµÃ‘â‚¬", "Ã�â€ºÃ�Â¸Ã�Â¿", "Ã�Â¡Ã�ÂµÃ‘â‚¬", "Ã�â€™Ã�ÂµÃ‘â‚¬", "Ã�â€“Ã�Â¾Ã�Â²", "Ã�â€ºÃ�Â¸Ã‘ï¿½", "Ã�â€œÃ‘â‚¬Ã‘Æ’"
         ],
         days: [
-            "Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П’ятниця", "Субота",
-            "Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"
+            "Ã�ï¿½Ã�ÂµÃ�Â´Ã‘â€“Ã�Â»Ã‘ï¿½", "Ã�Å¸Ã�Â¾Ã�Â½Ã�ÂµÃ�Â´Ã‘â€“Ã�Â»Ã�Â¾Ã�Âº", "Ã�â€™Ã‘â€“Ã�Â²Ã‘â€šÃ�Â¾Ã‘â‚¬Ã�Â¾Ã�Âº", "Ã�Â¡Ã�ÂµÃ‘â‚¬Ã�ÂµÃ�Â´Ã�Â°", "Ã�Â§Ã�ÂµÃ‘â€šÃ�Â²Ã�ÂµÃ‘â‚¬", "Ã�Å¸Ã¢â‚¬â„¢Ã‘ï¿½Ã‘â€šÃ�Â½Ã�Â¸Ã‘â€ Ã‘ï¿½", "Ã�Â¡Ã‘Æ’Ã�Â±Ã�Â¾Ã‘â€šÃ�Â°",
+            "Ã�ï¿½Ã�Â´", "Ã�Å¸Ã�Â½", "Ã�â€™Ã‘â€š", "Ã�Â¡Ã‘â‚¬", "Ã�Â§Ã‘â€š", "Ã�Å¸Ã‘â€š", "Ã�Â¡Ã�Â±"
         ],
         buttons: [
-            "Сьогодні", "Очистити", "Скасувати", "Допомога", "Назад", "Вперед", "Готово"
+            "Ã�Â¡Ã‘Å’Ã�Â¾Ã�Â³Ã�Â¾Ã�Â´Ã�Â½Ã‘â€“", "Ã�Å¾Ã‘â€¡Ã�Â¸Ã‘ï¿½Ã‘â€šÃ�Â¸Ã‘â€šÃ�Â¸", "Ã�Â¡Ã�ÂºÃ�Â°Ã‘ï¿½Ã‘Æ’Ã�Â²Ã�Â°Ã‘â€šÃ�Â¸", "Ã�â€�Ã�Â¾Ã�Â¿Ã�Â¾Ã�Â¼Ã�Â¾Ã�Â³Ã�Â°", "Ã�ï¿½Ã�Â°Ã�Â·Ã�Â°Ã�Â´", "Ã�â€™Ã�Â¿Ã�ÂµÃ‘â‚¬Ã�ÂµÃ�Â´", "Ã�â€œÃ�Â¾Ã‘â€šÃ�Â¾Ã�Â²Ã�Â¾"
         ]
     },
     'ru': {
         months: [
-            "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
-            "Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"
+            "Ã�Â¯Ã�Â½Ã�Â²Ã�Â°Ã‘â‚¬Ã‘Å’", "Ã�Â¤Ã�ÂµÃ�Â²Ã‘â‚¬Ã�Â°Ã�Â»Ã‘Å’", "Ã�Å“Ã�Â°Ã‘â‚¬Ã‘â€š", "Ã�ï¿½Ã�Â¿Ã‘â‚¬Ã�ÂµÃ�Â»Ã‘Å’", "Ã�Å“Ã�Â°Ã�Â¹", "Ã�ËœÃ‘Å½Ã�Â½Ã‘Å’", "Ã�ËœÃ‘Å½Ã�Â»Ã‘Å’", "Ã�ï¿½Ã�Â²Ã�Â³Ã‘Æ’Ã‘ï¿½Ã‘â€š", "Ã�Â¡Ã�ÂµÃ�Â½Ã‘â€šÃ‘ï¿½Ã�Â±Ã‘â‚¬Ã‘Å’", "Ã�Å¾Ã�ÂºÃ‘â€šÃ‘ï¿½Ã�Â±Ã‘â‚¬Ã‘Å’", "Ã�ï¿½Ã�Â¾Ã‘ï¿½Ã�Â±Ã‘â‚¬Ã‘Å’", "Ã�â€�Ã�ÂµÃ�ÂºÃ�Â°Ã�Â±Ã‘â‚¬Ã‘Å’",
+            "Ã�Â¯Ã�Â½Ã�Â²", "Ã�Â¤Ã�ÂµÃ�Â²", "Ã�Å“Ã�Â°Ã‘â‚¬", "Ã�ï¿½Ã�Â¿Ã‘â‚¬", "Ã�Å“Ã�Â°Ã�Â¹", "Ã�ËœÃ‘Å½Ã�Â½", "Ã�ËœÃ‘Å½Ã�Â»", "Ã�ï¿½Ã�Â²Ã�Â³", "Ã�Â¡Ã�ÂµÃ�Â½", "Ã�Å¾Ã�ÂºÃ‘â€š", "Ã�ï¿½Ã�Â¾Ã‘ï¿½", "Ã�â€�Ã�ÂµÃ�Âº"
         ],
         days: [
-            "Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота",
-            "Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"
+            "Ã�â€™Ã�Â¾Ã‘ï¿½Ã�ÂºÃ‘â‚¬Ã�ÂµÃ‘ï¿½Ã�ÂµÃ�Â½Ã‘Å’Ã�Âµ", "Ã�Å¸Ã�Â¾Ã�Â½Ã�ÂµÃ�Â´Ã�ÂµÃ�Â»Ã‘Å’Ã�Â½Ã�Â¸Ã�Âº", "Ã�â€™Ã‘â€šÃ�Â¾Ã‘â‚¬Ã�Â½Ã�Â¸Ã�Âº", "Ã�Â¡Ã‘â‚¬Ã�ÂµÃ�Â´Ã�Â°", "Ã�Â§Ã�ÂµÃ‘â€šÃ�Â²Ã�ÂµÃ‘â‚¬Ã�Â³", "Ã�Å¸Ã‘ï¿½Ã‘â€šÃ�Â½Ã�Â¸Ã‘â€ Ã�Â°", "Ã�Â¡Ã‘Æ’Ã�Â±Ã�Â±Ã�Â¾Ã‘â€šÃ�Â°",
+            "Ã�â€™Ã‘ï¿½", "Ã�Å¸Ã�Â½", "Ã�â€™Ã‘â€š", "Ã�Â¡Ã‘â‚¬", "Ã�Â§Ã‘â€š", "Ã�Å¸Ã‘â€š", "Ã�Â¡Ã�Â±"
         ],
         buttons: [
-            "Сегодня", "Очистить", "Отменить", "Помощь", "Назад", "Вперед", "Готово"
+            "Ã�Â¡Ã�ÂµÃ�Â³Ã�Â¾Ã�Â´Ã�Â½Ã‘ï¿½", "Ã�Å¾Ã‘â€¡Ã�Â¸Ã‘ï¿½Ã‘â€šÃ�Â¸Ã‘â€šÃ‘Å’", "Ã�Å¾Ã‘â€šÃ�Â¼Ã�ÂµÃ�Â½Ã�Â¸Ã‘â€šÃ‘Å’", "Ã�Å¸Ã�Â¾Ã�Â¼Ã�Â¾Ã‘â€°Ã‘Å’", "Ã�ï¿½Ã�Â°Ã�Â·Ã�Â°Ã�Â´", "Ã�â€™Ã�Â¿Ã�ÂµÃ‘â‚¬Ã�ÂµÃ�Â´", "Ã�â€œÃ�Â¾Ã‘â€šÃ�Â¾Ã�Â²Ã�Â¾"
         ]
     },
     /** By NoGrief (nogrief@gmail.com) */
     'zhCN': {
         months: [
-            "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月",
-            "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"
+            "Ã¤Â¸â‚¬Ã¦Å“Ë†", "Ã¤ÂºÅ’Ã¦Å“Ë†", "Ã¤Â¸â€°Ã¦Å“Ë†", "Ã¥â€ºâ€ºÃ¦Å“Ë†", "Ã¤Âºâ€�Ã¦Å“Ë†", "Ã¥â€¦Â­Ã¦Å“Ë†", "Ã¤Â¸Æ’Ã¦Å“Ë†", "Ã¥â€¦Â«Ã¦Å“Ë†", "Ã¤Â¹ï¿½Ã¦Å“Ë†", "Ã¥ï¿½ï¿½Ã¦Å“Ë†", "Ã¥ï¿½ï¿½Ã¤Â¸â‚¬Ã¦Å“Ë†", "Ã¥ï¿½ï¿½Ã¤ÂºÅ’Ã¦Å“Ë†",
+            "Ã¤Â¸â‚¬Ã¦Å“Ë†", "Ã¤ÂºÅ’Ã¦Å“Ë†", "Ã¤Â¸â€°Ã¦Å“Ë†", "Ã¥â€ºâ€ºÃ¦Å“Ë†", "Ã¤Âºâ€�Ã¦Å“Ë†", "Ã¥â€¦Â­Ã¦Å“Ë†", "Ã¤Â¸Æ’Ã¦Å“Ë†", "Ã¥â€¦Â«Ã¦Å“Ë†", "Ã¤Â¹ï¿½Ã¦Å“Ë†", "Ã¥ï¿½ï¿½Ã¦Å“Ë†", "Ã¥ï¿½ï¿½Ã¤Â¸â‚¬Ã¦Å“Ë†", "Ã¥ï¿½ï¿½Ã¤ÂºÅ’Ã¦Å“Ë†"
         ],
         days: [
-            "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六",
-            "日", "一", "二", "三", "四", "五", "六"
+            "Ã¦ËœÅ¸Ã¦Å“Å¸Ã¦â€”Â¥", "Ã¦ËœÅ¸Ã¦Å“Å¸Ã¤Â¸â‚¬", "Ã¦ËœÅ¸Ã¦Å“Å¸Ã¤ÂºÅ’", "Ã¦ËœÅ¸Ã¦Å“Å¸Ã¤Â¸â€°", "Ã¦ËœÅ¸Ã¦Å“Å¸Ã¥â€ºâ€º", "Ã¦ËœÅ¸Ã¦Å“Å¸Ã¤Âºâ€�", "Ã¦ËœÅ¸Ã¦Å“Å¸Ã¥â€¦Â­",
+            "Ã¦â€”Â¥", "Ã¤Â¸â‚¬", "Ã¤ÂºÅ’", "Ã¤Â¸â€°", "Ã¥â€ºâ€º", "Ã¤Âºâ€�", "Ã¥â€¦Â­"
         ],
         buttons: [
-            "今日", "清除", "Cancel", "Help", "Prior", "Next", "Finish"
+            "Ã¤Â»Å Ã¦â€”Â¥", "Ã¦Â¸â€¦Ã©â„¢Â¤", "Cancel", "Help", "Prior", "Next", "Finish"
         ]
     },
     'it': {
@@ -186,7 +193,7 @@ window.METRO_LOCALES = {
             'Gen', ' Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'
         ],
         days: [
-            'Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 
+            'Domenica', 'LunedÃƒÂ¬', 'MartedÃƒÂ¬', 'MercoledÃƒÂ¬', 'GiovedÃƒÂ¬', 'VenerdÃƒÂ¬', 'Sabato', 
             'Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'
         ],
         buttons: [
@@ -195,7 +202,7 @@ window.METRO_LOCALES = {
     },
     'de': {
         months: [
-            "Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember",
+            "Januar", "Februar", "MÃƒÂ¤rz", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember",
             "Jan", "Feb", "Mrz", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"
         ],
         days: [
@@ -203,18 +210,18 @@ window.METRO_LOCALES = {
             "So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"
         ],
         buttons: [
-            "Heute", "Zurücksetzen", "Abbrechen", "Hilfe", "Früher", "Später", "Fertig"
+            "Heute", "ZurÃƒÂ¼cksetzen", "Abbrechen", "Hilfe", "FrÃƒÂ¼her", "SpÃƒÂ¤ter", "Fertig"
         ]
     },
-    /** By Javier Rodríguez (javier.rodriguez at fjrodriguez.com) */
+    /** By Javier RodrÃƒÂ­guez (javier.rodriguez at fjrodriguez.com) */
     'es': {
         months: [
             "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
             "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sept", "Oct", "Nov", "Dic"
         ],
         days: [
-            "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado",
-            "Do", "Lu", "Mar", "Mié", "Jue", "Vi", "Sáb"
+            "Domingo", "Lunes", "Martes", "MiÃƒÂ©rcoles", "Jueves", "Viernes", "SÃƒÂ¡bado",
+            "Do", "Lu", "Mar", "MiÃƒÂ©", "Jue", "Vi", "SÃƒÂ¡b"
         ],
         buttons: [
             "Hoy", "Limpiar", "Cancel", "Help", "Prior", "Next", "Finish"
@@ -222,11 +229,11 @@ window.METRO_LOCALES = {
     },
     'pt': {
         months: [
-            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+            'Janeiro', 'Fevereiro', 'MarÃƒÂ§o', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
             'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
         ],
         days: [
-            'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sabado',
+            'Domingo', 'Segunda-feira', 'TerÃƒÂ§a-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sabado',
             'Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'
         ],
         buttons: [
@@ -235,42 +242,42 @@ window.METRO_LOCALES = {
     },
     'pl': {
         months: [
-            "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień",
-            "Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru"
+            "StyczeÃ…â€ž", "Luty", "Marzec", "KwiecieÃ…â€ž", "Maj", "Czerwiec", "Lipiec", "SierpieÃ…â€ž", "WrzesieÃ…â€ž", "PaÃ…Âºdziernik", "Listopad", "GrudzieÃ…â€ž",
+            "Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "PaÃ…Âº", "Lis", "Gru"
         ],
         days: [
-            "Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota",
-            "Nd", "Pon", "Wt", "Śr", "Czw", "Pt", "Sob"
+            "Niedziela", "PoniedziaÃ…â€šek", "Wtorek", "Ã…Å¡roda", "Czwartek", "PiÃ„â€¦tek", "Sobota",
+            "Nd", "Pon", "Wt", "Ã…Å¡r", "Czw", "Pt", "Sob"
         ],
         buttons: [
-            "Dzisiaj", "Wyczyść", "Anuluj", "Pomoc", "Poprzedni", "Następny", "Koniec"
+            "Dzisiaj", "WyczyÃ…â€ºÃ„â€¡", "Anuluj", "Pomoc", "Poprzedni", "NastÃ„â„¢pny", "Koniec"
         ]
     },
     'cs': {
         months: [
-            "Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec",
-            "Led", "Ún", "Bř", "Dub", "Kvě", "Če", "Čer", "Srp", "Zá", "Ří", "Li", "Pro"
+            "Leden", "ÃƒÅ¡nor", "BÃ…â„¢ezen", "Duben", "KvÃ„â€ºten", "Ã„Å’erven", "Ã„Å’ervenec", "Srpen", "ZÃƒÂ¡Ã…â„¢ÃƒÂ­", "Ã…ËœÃƒÂ­jen", "Listopad", "Prosinec",
+            "Led", "ÃƒÅ¡n", "BÃ…â„¢", "Dub", "KvÃ„â€º", "Ã„Å’e", "Ã„Å’er", "Srp", "ZÃƒÂ¡", "Ã…ËœÃƒÂ­", "Li", "Pro"
         ],
         days: [
-            "Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota",
-            "Ne", "Po", "Út", "St", "Čt", "Pá", "So"
+            "NedÃ„â€ºle", "PondÃ„â€ºlÃƒÂ­", "ÃƒÅ¡terÃƒÂ½", "StÃ…â„¢eda", "Ã„Å’tvrtek", "PÃƒÂ¡tek", "Sobota",
+            "Ne", "Po", "ÃƒÅ¡t", "St", "Ã„Å’t", "PÃƒÂ¡", "So"
         ],
         buttons: [
-            "Dnes", "Vyčistit", "Zrušit", "Pomoc", "Předešlý", "Další", "Dokončit"
+            "Dnes", "VyÃ„ï¿½istit", "ZruÃ…Â¡it", "Pomoc", "PÃ…â„¢edeÃ…Â¡lÃƒÂ½", "DalÃ…Â¡ÃƒÂ­", "DokonÃ„ï¿½it"
         ]
     },
     /* By Satit Rianpit <rianpit@gmail.com> */
     'th': {
         months: [
-            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
-            "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+            "Ã Â¸Â¡Ã Â¸ï¿½Ã Â¸Â£Ã Â¸Â²Ã Â¸â€žÃ Â¸Â¡", "Ã Â¸ï¿½Ã Â¸Â¸Ã Â¸Â¡Ã Â¸Â Ã Â¸Â²Ã Â¸Å¾Ã Â¸Â±Ã Â¸â„¢Ã Â¸ËœÃ Â¹Å’", "Ã Â¸Â¡Ã Â¸ÂµÃ Â¸â„¢Ã Â¸Â²Ã Â¸â€žÃ Â¸Â¡", "Ã Â¹â‚¬Ã Â¸Â¡Ã Â¸Â©Ã Â¸Â²Ã Â¸Â¢Ã Â¸â„¢", "Ã Â¸Å¾Ã Â¸Â¤Ã Â¸Â©Ã Â¸Â Ã Â¸Â²Ã Â¸â€žÃ Â¸Â¡", "Ã Â¸Â¡Ã Â¸Â´Ã Â¸â€“Ã Â¸Â¸Ã Â¸â„¢Ã Â¸Â²Ã Â¸Â¢Ã Â¸â„¢", "Ã Â¸ï¿½Ã Â¸Â£Ã Â¸ï¿½Ã Â¸Å½Ã Â¸Â²Ã Â¸â€žÃ Â¸Â¡", "Ã Â¸ÂªÃ Â¸Â´Ã Â¸â€¡Ã Â¸Â«Ã Â¸Â²Ã Â¸â€žÃ Â¸Â¡", "Ã Â¸ï¿½Ã Â¸Â±Ã Â¸â„¢Ã Â¸Â¢Ã Â¸Â²Ã Â¸Â¢Ã Â¸â„¢", "Ã Â¸â€¢Ã Â¸Â¸Ã Â¸Â¥Ã Â¸Â²Ã Â¸â€žÃ Â¸Â¡", "Ã Â¸Å¾Ã Â¸Â¤Ã Â¸Â¨Ã Â¸Ë†Ã Â¸Â´Ã Â¸ï¿½Ã Â¸Â²Ã Â¸Â¢Ã Â¸â„¢", "Ã Â¸ËœÃ Â¸Â±Ã Â¸â„¢Ã Â¸Â§Ã Â¸Â²Ã Â¸â€žÃ Â¸Â¡",
+            "Ã Â¸Â¡.Ã Â¸â€ž.", "Ã Â¸ï¿½.Ã Â¸Å¾.", "Ã Â¸Â¡Ã Â¸Âµ.Ã Â¸â€ž.", "Ã Â¹â‚¬Ã Â¸Â¡.Ã Â¸Â¢.", "Ã Â¸Å¾.Ã Â¸â€ž.", "Ã Â¸Â¡Ã Â¸Â´.Ã Â¸Â¢.", "Ã Â¸ï¿½.Ã Â¸â€ž.", "Ã Â¸Âª.Ã Â¸â€ž.", "Ã Â¸ï¿½.Ã Â¸Â¢.", "Ã Â¸â€¢.Ã Â¸â€ž.", "Ã Â¸Å¾.Ã Â¸Â¢.", "Ã Â¸Ëœ.Ã Â¸â€ž."
         ],
         days: [
-            "อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์",
-            "อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."
+            "Ã Â¸Â­Ã Â¸Â²Ã Â¸â€”Ã Â¸Â´Ã Â¸â€¢Ã Â¸Â¢Ã Â¹Å’", "Ã Â¸Ë†Ã Â¸Â±Ã Â¸â„¢Ã Â¸â€”Ã Â¸Â£Ã Â¹Å’", "Ã Â¸Â­Ã Â¸Â±Ã Â¸â€¡Ã Â¸â€žÃ Â¸Â²Ã Â¸Â£", "Ã Â¸Å¾Ã Â¸Â¸Ã Â¸Ëœ", "Ã Â¸Å¾Ã Â¸Â¤Ã Â¸Â«Ã Â¸Â±Ã Â¸ÂªÃ Â¸Å¡Ã Â¸â€�Ã Â¸Âµ", "Ã Â¸Â¨Ã Â¸Â¸Ã Â¸ï¿½Ã Â¸Â£Ã Â¹Å’", "Ã Â¹â‚¬Ã Â¸ÂªÃ Â¸Â²Ã Â¸Â£Ã Â¹Å’",
+            "Ã Â¸Â­Ã Â¸Â².", "Ã Â¸Ë†.", "Ã Â¸Â­.", "Ã Â¸Å¾.", "Ã Â¸Å¾Ã Â¸Â¤.", "Ã Â¸Â¨.", "Ã Â¸Âª."
         ],
         buttons: [
-            "วันนี้", "ล้าง", "ยกเลิก", "ช่วยเหลือ", "กลับ", "ต่อไป", "เสร็จ"
+            "Ã Â¸Â§Ã Â¸Â±Ã Â¸â„¢Ã Â¸â„¢Ã Â¸ÂµÃ Â¹â€°", "Ã Â¸Â¥Ã Â¹â€°Ã Â¸Â²Ã Â¸â€¡", "Ã Â¸Â¢Ã Â¸ï¿½Ã Â¹â‚¬Ã Â¸Â¥Ã Â¸Â´Ã Â¸ï¿½", "Ã Â¸Å Ã Â¹Ë†Ã Â¸Â§Ã Â¸Â¢Ã Â¹â‚¬Ã Â¸Â«Ã Â¸Â¥Ã Â¸Â·Ã Â¸Â­", "Ã Â¸ï¿½Ã Â¸Â¥Ã Â¸Â±Ã Â¸Å¡", "Ã Â¸â€¢Ã Â¹Ë†Ã Â¸Â­Ã Â¹â€žÃ Â¸â€º", "Ã Â¹â‚¬Ã Â¸ÂªÃ Â¸Â£Ã Â¹â€¡Ã Â¸Ë†"
         ]
     }
 };
@@ -941,175 +948,114 @@ var widget = $.widget;
 // Source: js/initiator.js
 $.fn.reverse = Array.prototype.reverse;
 
-$.Metro = function(params){
-    params = $.extend({
-    }, params);
-};
-
-$.Metro.hotkeys = [];
-
-$.Metro.initWidgets = function(){
-    var widgets = $("[data-role]");
-
-    var hotkeys = $("[data-hotkey]");
-    $.each(hotkeys, function(){
-        var element = $(this);
-        var hotkey = element.data('hotkey').toLowerCase();
-
-        //if ($.Metro.hotkeys.indexOf(hotkey) > -1) {
-        //    return;
-        //}
-        if (element.data('hotKeyBonded') === true ) {
-            return;
-        }
-
-        $.Metro.hotkeys.push(hotkey);
-
-        $(document).on('keyup', null, hotkey, function(e){
-            if (element === undefined) return;
-
-            if (element[0].tagName === 'A' &&
-                element.attr('href') !== undefined &&
-                element.attr('href').trim() !== '' &&
-                element.attr('href').trim() !== '#') {
-                document.location.href = element.attr('href');
-            } else {
-                element.click();
-            }
-            return false;
+$.Metro = {
+    initWidgets: function(widgets) {
+        $.each(widgets, function () {
+            var $this = $(this), w = this;
+            var roles = $this.data('metro-role').split(/\s*,\s*/);
+            roles.map(function (func) {
+                try {
+                    //$(w)[func]();
+                    if ($.fn[func] !== undefined && $this.data(func + '-initiated') !== true) {
+                        $.fn[func].call($this);
+                        $this.data(func + '-initiated', true);
+                    }
+                } catch (e) {
+                    if (window.METRO_DEBUG) {
+                        console.log(e.message, e.stack);
+                    }
+                }
+            });
         });
+    },
 
-        element.data('hotKeyBonded', true);
-    });
+    initHotkeys: function(hotkeys){
+        $.each(hotkeys, function(){
+            var element = $(this);
+            var hotkey = element.data('metro-hotkey').toLowerCase();
 
-    $.each(widgets, function(){
-        var $this = $(this), w = this;
-        var roles = $this.data('role').split(/\s*,\s*/);
-        roles.map(function(func){
-            try {
-                //$(w)[func]();
-                if ($.fn[func] !== undefined && $this.data(func+'-initiated') !== true) {
-                    $.fn[func].call($this);
-                    $this.data(func+'-initiated', true);
-                }
-            } catch(e) {
-                if (window.METRO_DEBUG) {
-                    console.log(e.message, e.stack);
-                }
+            //if ($.Metro.hotkeys.indexOf(hotkey) > -1) {
+            //    return;
+            //}
+            if (element.data('hotKeyBonded') === true ) {
+                return;
             }
-        });
-    });
-};
 
-$.Metro.init = function(){
-    $.Metro.initWidgets();
+            $.Metro.hotkeys.push(hotkey);
 
-    if (window.METRO_AUTO_REINIT) {
-        if (!window.canObserveMutation) {
-            var originalDOM = $('body').html(),
-                actualDOM;
+            $(document).on('keyup', null, hotkey, function(e){
+                if (element === undefined) return;
 
-            setInterval(function () {
-                actualDOM = $('body').html();
-
-                if (originalDOM !== actualDOM) {
-                    originalDOM = actualDOM;
-
-                    $.Metro.initWidgets();
+                if (element[0].tagName === 'A' &&
+                    element.attr('href') !== undefined &&
+                    element.attr('href').trim() !== '' &&
+                    element.attr('href').trim() !== '#') {
+                    document.location.href = element.attr('href');
+                } else {
+                    element.click();
                 }
-            }, 100);
-        } else {
-            var observer, observerOptions, observerCallback;
-            observerOptions = {
-                'childList': true,
-                'subtree': true
-            };
-            observerCallback = function(mutations){
+                return false;
+            });
 
-                //console.log(mutations);
+            element.data('hotKeyBonded', true);
+        });
+    },
 
-                mutations.map(function(record){
+    init: function(){
+    	
+        var widgets = $("[data-metro-role]");
+        var hotkeys = $("[data-metro-hotkey]");
 
-                    if (record.addedNodes) {
 
-                        /*jshint loopfunc: true */
-                        var obj, widgets, plugins, hotkeys;
+        $.Metro.initHotkeys(hotkeys);
+        $.Metro.initWidgets(widgets);
 
-                        for(var i = 0, l = record.addedNodes.length; i < l; i++) {
-                            obj = $(record.addedNodes[i]);
+        var observer, observerOptions, observerCallback;
 
-                            plugins = obj.find("[data-role]");
+        observerOptions = {
+            'childList': true,
+            'subtree': true
+        };
 
-                            hotkeys = obj.find("[data-hotkey]");
+        observerCallback = function(mutations){
 
-                            $.each(hotkeys, function(){
-                                var element = $(this);
-                                var hotkey = element.data('hotkey').toLowerCase();
+            //console.log(mutations);
 
-                                //if ($.Metro.hotkeys.indexOf(hotkey) > -1) {
-                                //    return;
-                                //}
+            mutations.map(function(record){
 
-                                if (element.data('hotKeyBonded') === true ) {
-                                    return;
-                                }
+                if (record.addedNodes) {
 
-                                $.Metro.hotkeys.push(hotkey);
+                    /*jshint loopfunc: true */
+                    var obj, widgets, plugins, hotkeys;
 
-                                $(document).on('keyup', null, hotkey, function () {
-                                    if (element === undefined) return;
+                    for(var i = 0, l = record.addedNodes.length; i < l; i++) {
+                        obj = $(record.addedNodes[i]);
 
-                                    if (element[0].tagName === 'A' &&
-                                        element.attr('href') !== undefined &&
-                                        element.attr('href').trim() !== '' &&
-                                        element.attr('href').trim() !== '#') {
-                                        document.location.href = element.attr('href');
-                                    } else {
-                                        element.click();
-                                    }
-                                    return false;
-                                });
+                        plugins = obj.find("[data-metro-role]");
 
-                                element.data('hotKeyBonded', true);
-                                //console.log($.Metro.hotkeys);
-                            });
+                        hotkeys = obj.find("[data-metro-hotkey]");
 
-                            if (obj.data('role') !== undefined) {
-                                widgets = $.merge(plugins, obj);
-                            } else {
-                                widgets = plugins;
-                            }
+                        $.Metro.initHotkeys(hotkeys);
 
-                            if (widgets.length) {
-                                $.each(widgets, function(){
-                                    var _this = $(this);
-                                    var roles = _this.data('role').split(/\s*,\s*/);
-                                    roles.map(function(func){
-                                        try {
-                                            if ($.fn[func] !== undefined && _this.data(func+'-initiated') !== true) {
-                                                $.fn[func].call(_this);
-                                                _this.data(func+'-initiated', true);
-                                            }
-                                        } catch(e) {
-                                            if (window.METRO_DEBUG) {
-                                                console.log(e.message, e.stack);
-                                            }
-                                        }
-                                    });
-                                });
-                            }
+                        if (obj.data('metro-role') !== undefined) {
+                            widgets = $.merge(plugins, obj);
+                        } else {
+                            widgets = plugins;
+                        }
+
+                        if (widgets.length) {
+                            $.Metro.initWidgets(widgets);
                         }
                     }
-                });
-            };
+                }
+            });
+        };
 
-            //console.log($(document));
-            observer = new MutationObserver(observerCallback);
-            observer.observe(document, observerOptions);
-        }
+        //console.log($(document));
+        observer = new MutationObserver(observerCallback);
+        observer.observe(document, observerOptions);
     }
 };
-
 // Source: js/utils/easing.js
 	$.easing['jswing'] = $.easing['swing'];
 
@@ -1463,7 +1409,7 @@ $.event.special.mousewheel = {
     setup: function() {
         if ( this.addEventListener ) {
             for ( var i = toBind.length; i; ) {
-                this.addEventListener( toBind[--i], handler, false );
+                this.addEventListener( toBind[--i], handler, { passive: false } ); 
             }
         } else {
             this.onmousewheel = handler;
@@ -1473,7 +1419,7 @@ $.event.special.mousewheel = {
     teardown: function() {
         if ( this.removeEventListener ) {
             for ( var i = toBind.length; i; ) {
-                this.removeEventListener( toBind[--i], handler, false );
+                this.removeEventListener( toBind[--i], handler, { passive: false } );
             }
         } else {
             this.onmousewheel = null;
@@ -1581,9 +1527,9 @@ var moveDirection = 'undefined', startX, startY, deltaX, deltaY, mouseDown = fal
 
 var addTouchEvents = function(element) {
     if (hasTouch) {
-        element.addEventListener("touchstart", touch2Mouse, true);
-        element.addEventListener("touchmove", touch2Mouse, true);
-        element.addEventListener("touchend", touch2Mouse, true);
+        element.addEventListener("touchstart", touch2Mouse, {passive: true});
+        element.addEventListener("touchmove", touch2Mouse, {passive: true});
+        element.addEventListener("touchend", touch2Mouse, {passive: true});
     }
 };
 
@@ -2147,7 +2093,7 @@ $.widget("metro.accordion", {
                     $(that.pullButton).on("click", function () {
 
                         //who am i?
-                        that = $(this).closest("[data-role=appbar]").data("appbar");
+                        that = $(this).closest("[data-metro-role=appbar]").data("appbar");
 
                         //we show /hide the pullmenu
                         if ($(that.pullMenu).is(":hidden")) {
@@ -2166,7 +2112,7 @@ $.widget("metro.accordion", {
 
                     //we have to calculate everything new, if the user resizes or zooms the window
                     $(window).resize(function () {
-                        $("[data-role=appbar]:not(.no-flexible)").each(function () {
+                        $("[data-metro-role=appbar]:not(.no-flexible)").each(function () {
                             $(this).data("appbar").resize();
                         });
                     });
@@ -2175,16 +2121,16 @@ $.widget("metro.accordion", {
                     //because fonts(also icon-fonts) are often loaded async after the page has loaded and this script walked through already, 
                     //we have to check again after these elements loaded. Because there is no way to observe only specific elements, we do it for the window
                     $(window).load(function () {
-                        $("[data-role=appbar]:not(.no-flexible)").each(function () {
+                        $("[data-metro-role=appbar]:not(.no-flexible)").each(function () {
                             $(this).data("appbar").resize();
                         });
                     });
 
                     //pictures (or other outside stuff was loaded - pictures are also often loaded async or have a lazy load or are injected after a while. 
                     //a picture can change a size of the element from the appbar, so we must recheck it again.
-                    $("[data-role=appbar]:not(.no-flexible) [src]").on("load", function () {
+                    $("[data-metro-role=appbar]:not(.no-flexible) [src]").on("load", function () {
                         //who am i?
-                        var appbar = $(this).closest("[data-role=appbar]").data("appbar");
+                        var appbar = $(this).closest("[data-metro-role=appbar]").data("appbar");
                         appbar.resize();
                     });
                 }
@@ -2312,7 +2258,7 @@ $.widget( "metro.audio" , {
         }
         $.each(items, function(){
             var item = $(this);
-            var pb = $("<div>").addClass('progress-bar small no-margin-top').data('role', 'progress').appendTo(item).hide();
+            var pb = $("<div>").addClass('progress-bar small no-margin-top').data('metro-role', 'progress').appendTo(item).hide();
             item.on("click", function(){
                 items.removeClass("current");
                 items.find('.progress-bar').hide();
@@ -3860,31 +3806,51 @@ $.widget( "metro.charm" , {
             size = element.outerWidth();
             if (o.position === "left") {
                 element.css({
-                    left: -size
+                    left: -size,
+                    right: 'auto',
+                    top: 0,
+                    bottom: 0
                 }).show().animate({
                     left: 0
-                }, o.duration);
+                }, o.duration, function(){
+                    element.data("displayed", true);
+                });
             } else {
                 element.css({
-                    right: -size
+                    right: -size,
+                    left: 'auto',
+                    top: 0,
+                    bottom: 0
                 }).show().animate({
                     right: 0
-                }, o.duration);
+                }, o.duration, function(){
+                    element.data("displayed", true);
+                });
             }
         } else {
             size = element.outerHeight();
             if (o.position === "top") {
                 element.css({
-                    top: -size
+                    top: -size,
+                    bottom: 'auto',
+                    left: 0,
+                    right: 0
                 }).show().animate({
                     top: 0
-                }, o.duration);
+                }, o.duration, function(){
+                    element.data("displayed", true);
+                });
             } else {
                 element.css({
-                    bottom: -size
+                    bottom: -size,
+                    top: 'auto',
+                    left: 0,
+                    right: 0
                 }).show().animate({
                     bottom: 0
-                }, o.duration);
+                }, o.duration, function(){
+                    element.data("displayed", true);
+                });
             }
         }
 
@@ -3909,12 +3875,14 @@ $.widget( "metro.charm" , {
                     left: -size
                 }, o.duration, function(){
                     element.hide();
+                    element.data("displayed", false);
                 });
             } else {
                 element.animate({
                     right: -size
                 }, o.duration, function(){
                     element.hide();
+                    element.data("displayed", false);
                 });
             }
         } else {
@@ -3924,12 +3892,14 @@ $.widget( "metro.charm" , {
                     top: -size
                 }, o.duration, function(){
                     element.hide();
+                    element.data("displayed", false);
                 });
             } else {
                 element.animate({
                     bottom: -size
                 }, o.duration, function(){
                     element.hide();
+                    element.data("displayed", false);
                 });
             }
         }
@@ -3967,6 +3937,109 @@ $.widget( "metro.charm" , {
         this._super('_setOption', key, value);
     }
 });
+
+$(document).on("click", ".charm", function(e){
+    e.preventDefault();
+    e.stopPropagation();
+});
+
+$(document).on('click', function(e){
+    $('[data-metro-role=charm]').each(function(i, el){
+        if (!$(el).hasClass('keep-open') && $(el).data('displayed')===true) {
+            $(el).data('charm').close();
+        }
+    });
+});
+
+window.metroCharmIsOpened = function(el){
+    var charm = $(el), charm_obj;
+    if (charm.length == 0) {
+        console.log('Charm ' + el + ' not found!');
+        return false;
+    }
+
+    charm_obj = charm.data('charm');
+
+    if (charm_obj == undefined) {
+        console.log('Element not contain role charm! Please add attribute data-metro-role="charm" to element ' + el);
+        return false;
+    }
+
+    return charm_obj.element.data('opened') === true;
+};
+
+window.showMetroCharm = function (el, position){
+    var charm = $(el), charm_obj;
+    if (charm.length == 0) {
+        console.log('Charm ' + el + ' not found!');
+        return false;
+    }
+
+    charm_obj = charm.data('charm');
+
+    if (charm_obj == undefined) {
+        console.log('Element not contain role charm! Please add attribute data-metro-role="charm" to element ' + el);
+        return false;
+    }
+
+    if (position != undefined) {
+
+        charm.hide();
+        charm.data("displayed", false);
+        charm.data("opened", false);
+
+        charm_obj.options.position = position;
+    }
+
+    charm_obj.open();
+
+    return false;
+};
+
+window.hideMetroCharm = function(el){
+    var charm = $(el), charm_obj;
+    if (charm.length == 0) {
+        console.log('Charm ' + el + ' not found!');
+        return false;
+    }
+
+    charm_obj = charm.data('charm');
+
+    if (charm_obj == undefined) {
+        console.log('Element not contain role charm! Please add attribute data-metro-role="charm" to element ' + el);
+        return false;
+    }
+
+    charm_obj.close();
+};
+
+window.toggleMetroCharm = function(el, position){
+    var charm = $(el), charm_obj;
+    if (charm.length == 0) {
+        console.log('Charm ' + el + ' not found!');
+        return false;
+    }
+
+    charm_obj = charm.data('charm');
+
+    if (charm_obj == undefined) {
+        console.log('Element not contain role charm! Please add attribute data-metro-role="charm" to element ' + el);
+        return false;
+    }
+
+    if (charm_obj.element.data('opened') === true) {
+        charm_obj.close();
+    } else {
+        if (position != undefined) {
+            charm.hide();
+            charm.data("displayed", false);
+            charm.data("opened", false);
+
+            charm_obj.options.position = position;
+        }
+        charm_obj.open();
+    }
+};
 
 // Source: js/widgets/clock.js
 $.widget( "metro.clock" , {
@@ -4807,12 +4880,19 @@ $.widget( "metro.dialog" , {
             return false;
         }
 
-        element.find('.set-dialog-content').remove();
+        element.children(":not(.dialog-close-button)").remove();
+        //element.find('.set-dialog-content').remove();
 
         content.appendTo(element);
 
         if (o.content) {
-            content.html(o.content);
+
+            if (o.content instanceof jQuery) {
+                o.content.appendTo(content);
+            } else {
+                content.html(o.content);
+            }
+
             this._setPosition();
         }
 
@@ -4826,6 +4906,27 @@ $.widget( "metro.dialog" , {
             );
         }
 
+    },
+
+    setContent: function(content){
+        this.options.contentType = "default";
+        this.options.href = false;
+        this.options.content = content;
+        this._setContent();
+    },
+
+    setContentHref: function(href){
+        this.options.contentType = "href";
+        this.options.content = false;
+        this.options.href = href;
+        this._setContent();
+    },
+
+    setContentVideo: function(content){
+        this.options.contentType = "video";
+        this.options.content = content;
+        this.options.href = false;
+        this._setContent();
     },
 
     toggle: function(){
@@ -4918,7 +5019,7 @@ $.widget( "metro.dialog" , {
 });
 
 
-window.showMetroDialog = function (el, place){
+window.showMetroDialog = function (el, place, content, contentType){
     var dialog = $(el), dialog_obj;
     if (dialog.length == 0) {
         console.log('Dialog ' + el + ' not found!');
@@ -4928,8 +5029,16 @@ window.showMetroDialog = function (el, place){
     dialog_obj = dialog.data('dialog');
 
     if (dialog_obj == undefined) {
-        console.log('Element not contain role dialog! Please add attribute data-role="dialog" to element ' + el);
+        console.log('Element not contain role dialog! Please add attribute data-metro-role="dialog" to element ' + el);
         return false;
+    }
+
+    if (content != undefined) {
+        switch (contentType) {
+            case 'href': dialog_obj.setContentHref(content); break;
+            case 'video': dialog_obj.setContentVideo(content); break;
+            default: dialog_obj.setContent(content);
+        }
     }
 
     if (place !== undefined) {
@@ -4949,14 +5058,14 @@ window.hideMetroDialog = function(el){
     dialog_obj = dialog.data('dialog');
 
     if (dialog_obj == undefined) {
-        console.log('Element not contain role dialog! Please add attribute data-role="dialog" to element ' + el);
+        console.log('Element not contain role dialog! Please add attribute data-metro-role="dialog" to element ' + el);
         return false;
     }
 
     dialog_obj.close();
 };
 
-window.toggleMetroDialog = function(el, place){
+window.toggleMetroDialog = function(el, place, content, contentType){
     var dialog = $(el), dialog_obj;
     if (dialog.length == 0) {
         console.log('Dialog ' + el + ' not found!');
@@ -4966,8 +5075,16 @@ window.toggleMetroDialog = function(el, place){
     dialog_obj = dialog.data('dialog');
 
     if (dialog_obj == undefined) {
-        console.log('Element not contain role dialog! Please add attribute data-role="dialog" to element ' + el);
+        console.log('Element not contain role dialog! Please add attribute data-metro-role="dialog" to element ' + el);
         return false;
+    }
+
+    if (content != undefined) {
+        switch (contentType) {
+            case 'href': dialog_obj.setContentHref(content); break;
+            case 'video': dialog_obj.setContentVideo(content); break;
+            default: dialog_obj.setContent(content);
+        }
     }
 
     if (dialog_obj.element.data('opened') === true) {
@@ -5189,8 +5306,8 @@ $.widget("metro.dropdown", {
             if (menu.css('display') === 'block' && !menu.hasClass('keep-open')) {
                 that._close(menu);
             } else {
-                $('[data-role=dropdown]').each(function(i, el){
-                    if (!menu.parents('[data-role=dropdown]').is(el) && !$(el).hasClass('keep-open') && $(el).css('display') === 'block') {
+                $('[data-metro-role=dropdown]').each(function(i, el){
+                    if (!menu.parents('[data-metro-role=dropdown]').is(el) && !$(el).hasClass('keep-open') && $(el).css('display') === 'block') {
                         that._close(el);
                     }
                 });
@@ -5224,14 +5341,6 @@ $.widget("metro.dropdown", {
 
         $(menu).find('li.disabled a').on('click', function(e){
             e.preventDefault();
-        });
-
-        $(document).on('click', function(e){
-            $('[data-role=dropdown]').each(function(i, el){
-                if (!$(el).hasClass('keep-open') && $(el).css('display')==='block') {
-                    that._close(el);
-                }
-            });
         });
 
         element.data('dropdown', this);
@@ -5291,6 +5400,15 @@ $.widget("metro.dropdown", {
     _setOption: function(key, value){
         this._super('_setOption', key, value);
     }
+});
+
+$(document).on('click', function(e){
+    $('[data-metro-role=dropdown]').each(function(i, el){
+        if (!$(el).hasClass('keep-open') && $(el).css('display')==='block') {
+            var that = $(el).data('dropdown');
+            that._close(el);
+        }
+    });
 });
 
 // Source: js/widgets/fit-image.js
@@ -6064,7 +6182,7 @@ $.widget( "metro.keypad" , {
             $(o.target).attr('readonly', true);
         }
 
-        if (keypad.parent().data('role') === 'dropdown') {
+        if (keypad.parent().data('metro-role') === 'dropdown') {
             keypad.parent().css({
                 top: '100%'
             });
@@ -9172,9 +9290,20 @@ $.widget( "metro.validator" , {
         });
 
         $.each(inputs, function(i, v){
+            var this_result = true;
             var input = $(v);
-            var func = input.data('validateFunc'), arg = input.data('validateArg');
-            var this_result = that.funcs[func](input.val(), arg);
+            var func = input.data('validateFunc') != undefined ? String(input.data('validateFunc')).split(",") : [],
+                arg = input.data('validateArg') != undefined ? String(input.data('validateArg')).split(",") : [];
+
+            console.log(input.data('validateArg'));
+
+            $.each(func, function(i, func_name){
+                if (!this_result) return;
+                var _args = arg[i] != undefined ? arg[i] : false;
+                this_result = that.funcs[func_name.trim()](input.val(), _args);
+            });
+
+//            this_result = that.funcs[func](input.val(), arg);
 
             if (!this_result) {
                 if (typeof o.onErrorInput === 'function') {
@@ -9683,7 +9812,7 @@ $.widget( "metro.video" , {
         }
 
         preloader = $("<div/>").addClass("video-preloader")
-            .attr("data-role", "preloader")
+            .attr("data-metro-role", "preloader")
             .attr("data-type", "cycle")
             .attr("data-style", "color")
             .appendTo(element);
@@ -10217,7 +10346,7 @@ $.widget("metro.wizard", {
         var stepper, o = this.options;
 
         stepper = $("<div/>").addClass("stepper")
-            .attr("data-role", "stepper")
+            .attr("data-metro-role", "stepper")
             .attr("data-steps", steps);
 
         if (o.stepperType !== 'default') {

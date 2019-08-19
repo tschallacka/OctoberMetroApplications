@@ -4,29 +4,69 @@
 
             <tr>
             	<?php foreach($columsToList as $column => $properties):?>
-                <th class="<?= ($orderColumn == $column ? 'active' : '')?> sort-<?= ($orderColumn == $column ? $sortDirection : 'desc')?> '">
-                	<a data-apprequest="onSort"
-                		data-apprequest-data="listName:'<?=$listName?>',column:'<?= $column ?>'"
-            			href="javascript:void(0)">
-
-            				<?= $properties->label ?>
-    				</a>
-				</th>
+        	    	<?php if(!property_exists($properties, 'visible')  || 
+                		          (property_exists($properties, 'visible') && 
+                		                  ($properties->visible === true   || 
+        		                           $properties->visible === "true"  || 
+                		                   $properties->visible === "yes") )):?>
+                        <th class="<?= ($orderColumn == $column ? 'active' : '')?> sort-<?= ($orderColumn == $column ? $sortDirection : 'desc')?> '">
+                        	<a data-apprequest="onSort"
+                        		data-apprequest-data="listName:'<?=$listName?>',column:'<?= $column ?>'"
+                    			href="javascript:void(0)">
+        
+                    				<?= $properties->label ?>
+            				</a>
+        				</th>
+    				<?php endif; ?>
 				<?php endforeach; ?>
             </tr>
         </thead>
         <tbody>
-        	<?php foreach($list as $item):?>
-            <tr <?php if(!empty($destinationLink)):?>data-open-window-url="<?= Backend::url($destinationLink,[$item->getKey()])?>" style="cursor:pointer;"<?php endif;?>>
-
-            	<?php foreach($columsToList as $column => $label):?>
-                	<td>
-                			<?= $item->getAttribute($column); ?>
-        			</td>
-            	<?php endforeach; ?>
-
-            </tr>
-            <?php endforeach; ?>
+            
+            <?php if($list && $list->count()):?>
+            	<?php foreach($list as $item):?>
+            	
+                <tr <?php if(!empty($onclick)):?>onclick="<?=str_replace(':id',$item->getKey(),$onclick)?>"<?php endif;?>
+                	data-row-key="<?=$item->getKey()?>"
+                    <?php if(!empty($apprequest)):?>data-apprequest="<?= str_replace(':id',$item->getKey(),$apprequest)?>"<?php endif;?>
+                    <?php if(!empty($apprequestdata)):?>data-apprequest-data="<?= str_replace(':id',$item->getKey(),$apprequestdata)?>"<?php endif;?>
+                    <?php if(!empty($attributes)):?><?= str_replace(':id',$item->getKey(),$attributes); ?><?php endif;?>
+                    <?php if(!empty($apppopup)):?>data-popup-handler="<?= str_replace(':id',$item->getKey(),$apppopup); ?>" data-app-popup<?php endif;?> 
+                	<?php if(!empty($destinationLink)):?>data-open-window-url="<?= Backend::url(str_replace(':id',$item->getKey(),$destinationLink))?>" style="cursor:pointer;"<?php endif;?>>
+    
+                	<?php foreach($columsToList as $column => $label):?>
+                    	<td>
+                    		<?php if(!property_exists($label, 'visible')  || 
+                    		          (property_exists($label, 'visible') && 
+                    		                  ($label->visible === true   || 
+            		                           $label->visible === "true"  || 
+                    		                   $label->visible === "yes") )):?>
+                    		                   
+                        		<?php if(property_exists($label, 'type')) :?>
+                        			<?php if($label->type == "partial"):?>
+                        				<?= $this->render('_'.$column.'.htm',
+                        						[
+                        							'model' => $item,
+                        							'value' => utf8_encode($item->getAttribute($column)),
+                        				])?>
+                                    <?php elseif($label->type == 'switch'):?>
+                                        <?= $item->getAttribute($column) ? 'Yes':'No'?>
+                                    
+                                        
+                        			<?php else:?>
+                        			
+                        				<?= utf8_encode($item->getAttribute($column)); ?>	
+                        			<?php endif;?>
+                        		<?php else:?>
+                        			<?= utf8_encode($item->getAttribute($column)); ?>
+                        		<?php endif;?>
+                    		<?php endif;?>
+            			</td>
+                	<?php endforeach; ?>
+    
+                </tr>
+                <?php endforeach; ?>
+            <?php endif;?>
         </body>
         <tfoot>
             <tr>

@@ -1,50 +1,18 @@
 +function ($) { "use strict";
-	var appName = 'ListSearchBarHandler';
+	var appName = 'PanelToggleClick';
 		
 	/**
 	 * Needs to be here, do not edit
 	 */
-	var appID = appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();var appDataHandler = '[data-search-in-list-element]';	var oc = 'oc.'+appName; var Base = $.oc.foundation.base, BaseProto = Base.prototype; var Application = function (element, options) { this.$el = $(element); this.options = options || {}; this.appID = appID; this.appName = appName; this.oc = oc; $.oc.foundation.controlUtils.markDisposable(element); Base.call(this); this.sysInit(); }; Application.prototype = Object.create(BaseProto); Application.prototype.constructor = Application;
+	var appID = appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();var appDataHandler = '[data-open-window-url]';	var oc = 'oc.'+appName; var Base = $.oc.foundation.base, BaseProto = Base.prototype; var Application = function (element, options) { this.$el = $(element); this.options = options || {}; this.appID = appID; this.appName = appName; this.oc = oc; $.oc.foundation.controlUtils.markDisposable(element); Base.call(this); this.sysInit(); }; Application.prototype = Object.create(BaseProto); Application.prototype.constructor = Application;
     
     Application.prototype.handlers = function(type) {
     	if(type == 'on') {
-    		this.lastTimeout = 0;
-    		this.timeoutsToClear = [];
+    		this.$el.panel();
     	}
-    	else {
-    		this.lastTimeout = null;
-    		this.clearTimeouts();
-    		this.timeoutsToClear = null;
-    		
-    	}
-    	this.$el[type]('keydown',this.proxy(this.keyDown));
+    	
     };
     
-    Application.prototype.clearTimeouts = function() {
-    	var foo;
-		while(foo = this.timeoutsToClear.pop()) {
-			window.clearTimeout(foo);
-		}
-    }
-    Application.prototype.sendSearch = function() {
-    	var val = this.$el.val();
-    	/**
-    	 * Pass application ID so right application can handle the call
-    	 */
-    	var appid = this.$el.closest('[data-appid]').data('appid');
-    	
-    	var rawdata = this.$el.data('apprequest-data');
-    	var data = {};
-    	if(rawdata) {
-    		eval('data={'+rawdata+'}');
-    	}
-    	data['searchValue'] = val;
-    	data['complete'] = this.proxy(this.afterRefresh);
-    	this.$el.appRequest(appid,'onListSearch',data);
-    }
-    Application.prototype.afterRefresh = function() {
-    	this.$el.focus();
-    }
     /**
      * Application JS is bound to any element that has [data-apprequest] defined in it's tag.
      * Make sure that element is a child of a tag containin data-appid so the ajax request
@@ -52,17 +20,6 @@
      * @param e
      */
     
-    Application.prototype.keyDown = function(e) {
-    	var currentTime = new Date().getTime();
-    	if(this.timeoutsToClear.length > 1) {
-    	    this.clearTimeouts();	
-    	}
-    	this.timeoutsToClear.push(window.setTimeout(this.proxy(this.sendSearch),500));
-    	 
-    	
-    	
-    	
-    }
     
     
     
@@ -135,7 +92,7 @@
 
     // Add this only if required
     $(document).render(function (){
-    	var $elems = $(appDataHandler);
+    	var $elems = $('.collapsible');
     	$elems[appName]();
     	
     })

@@ -7,7 +7,8 @@
 	var appID = appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();var appDataHandler = '[data-app-popup]';	var oc = 'oc.'+appName; var Base = $.oc.foundation.base, BaseProto = Base.prototype; var Application = function (element, options) { this.$el = $(element); this.options = options || {}; this.appID = appID; this.appName = appName; this.oc = oc; $.oc.foundation.controlUtils.markDisposable(element); Base.call(this); this.sysInit(); }; Application.prototype = Object.create(BaseProto); Application.prototype.constructor = Application;
     
     Application.prototype.handlers = function(type) {
-    	console.log(this.$el.get(0).hasAttribute('data-app-popup'));
+    	
+    	
     	this.$el[type]('click',this.proxy(this.onClick));
     };
     
@@ -24,6 +25,10 @@
     		if(this.$el.get(0).hasAttribute('data-popup-data')) {
     			eval('data = {'+this.$el.data('popup-data')+'}');
     		}
+    		else if(this.$el.get(0).hasAttribute('data-apprequest-data')) {
+    			eval('data = {'+this.$el.data('apprequest-data')+'}');
+    		}
+    		
     		this.$el.appPopup(this.$el.getAppId(),this.$el.data('popup-handler'),data);
     	}
     	
@@ -85,15 +90,29 @@
     	sendobject.data.data = data;
     	$.request('onAppRequest', sendobject);
     }
-    $.fn.appPopup = $.appPopup = function(appid,request,data) {
+    $.fn.appPopup = $.appPopup = function(appid,request,data,size) {
     	var sendobject = {
     	    handler:'onAppRequest',
+    	    size: (typeof size === 'undefined' ? 'widthsixhundered' : size),
     		extraData:{
     			appid:appid,
     			request:request
     		}
     	};
+    	
     	sendobject.extraData.data = data;
+    	$(window).one('shown.bs.modal',function(e) {
+    		var $target = $(e.target);
+    		$target.on('hide.bs.modal',function() {
+    			$target.find('[data-disposable]').each(function(i,e){$(e).trigger('dispose-control')});
+    		})
+    		if($target.find('.modal-dialog').height() > $target.height()) {
+    			$target.animate({
+				    scrollTop: $target.find(".modal-content").offset().top - 150,
+				});
+    		}
+    	});
+    	
     	$.popup(sendobject);
     	
     }

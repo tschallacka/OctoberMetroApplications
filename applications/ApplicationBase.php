@@ -11,12 +11,20 @@ use October\Rain\Exception\ApplicationException;
 use Session;
 use ReflectionClass;
 use Backend\Classes\WidgetBase;
+use Backend\Classes\Controller;
+use Illuminate\Database\Query\Expression as Raw;
+use Illuminate\Queue\Connectors\BeanstalkdConnector;
+use ExitControl\ExitUsers\Models\UserSettings;
 
 class ApplicationBase extends WidgetBase {
     protected $name = 'n_a';
     protected $version = '1.0.0';
     protected $scripts = [];
     protected $css = [];
+    /**
+     * 
+     * @var \Applications\ApplicationController $controller
+     */
     protected $controller;
     protected $permissions = [];
     protected static $widgets = null;
@@ -28,8 +36,14 @@ class ApplicationBase extends WidgetBase {
     protected $applicationDir = null;
     protected $defaultAlias = 'n_a';
 
-    public function bindToController() {
+    use \Backend\Traits\FormModelSaver;
+    
+    public function bindToController() { 
         parent::bindToController();
+    }
+    
+    public function preInit() {
+            
     }
 
     /**
@@ -43,29 +57,61 @@ class ApplicationBase extends WidgetBase {
         return $this->applicationDir;
     }
 
-
+    /**
+     * Render a list via the controller list render
+     * @param string $listname name of the list config in the controller
+     */
     protected function listRender($listname) {
         $this->controller->makeLists();
         return $this->controller->listRender($listname);
     }
+
+    /**
+     * Add a list configuration to the controller
+     * @param string $listname Adds the list configuration to the Controller.
+     *              A configuration.yaml with the name of the "$listname.yaml" needs to be placed
+     *              In the applications config directory.
+     */
     protected function addListConfiguration($listname) {
+
         if(property_exists($this->controller,'listConfig')) {
+
             if(!is_array($this->controller->listConfig)) {
+
                 $old = $this->controller->listConfig;
                 $this->controller->listConfig = [$old];
+
             }
 
             $this->controller->listConfig[$listname] = $this->getPath('config/'.$listname.'.yaml');
         }
-    }
-
-    protected function createApplicationForm($config_file,$model) {
 
     }
 
+    protected function createApplicationForm($config_file,$model,$context='create') {
+        
+        $config = $this->getApplicationConfig($config_file,false);
+        $config->model = $model;
+        $config->arrayName = class_basename($model);
+        
+        $config->context = $context;
+        $config->alias = studly_case($config->arrayName.'-'.$config_file);
+        //$config->noInit = true;
+        
+        $widget = $this->controller->createApplicationForm($config); 
+        
+        return $widget;
+         
+    }
+
+    /**
+     * Set the application version
+     * @param string $version
+     */
     protected function setVersion($version='1.0.0') {
         $this->version = $version;
     }
+
     /**
      * Geta associated Model
      * @return Model
@@ -73,6 +119,7 @@ class ApplicationBase extends WidgetBase {
     public function getModel() {
         return $this->model;
     }
+
     /**
      * Set model to be used with application instance
      * @param Model $model
@@ -88,15 +135,25 @@ class ApplicationBase extends WidgetBase {
     public function getVersion() {
         return $this->version;
     }
-
+    /**
+     * Returns a javascript data hanlder 
+     * @param string $name The name to add
+     * @return string data-$appId-$name
+     */
+    public function getDataHandler($name='') {
+        return 'data-'.$this->getApplicationID().'-'.$name;
+    }
     private function generateApplicationID() {
+
         $appID = preg_replace('/[^a-z]+/i','',$this->name);
         $appID = preg_replace('/(.)([A-Z])/','$1-$2',$appID);
         $appID = strtolower($appID);
         $this->applicationID = $appID;
+
     }
 
     public function getApplicationID() {
+
         if(is_null($this->applicationID)) {
             $this->generateApplicationID();
         }
@@ -119,7 +176,20 @@ class ApplicationBase extends WidgetBase {
         }
         return $ret;
     }
-
+    /**
+     * Saves a from model from a form widget
+     * @param Model $model
+     * @param  $formWidget
+     */
+    public function saveFormModel($model, $formWidget) 
+    {
+        $modelsToSave = $this->prepareModelsToSave($model, $formWidget->getSaveData());
+        foreach ($modelsToSave as $modelToSave) {
+            $modelToSave->save(null, $formWidget->getSessionKey());
+        }
+        return true;
+    }
+    
     /**
      * Return the base url to the application directory.
      */
@@ -157,6 +227,7 @@ class ApplicationBase extends WidgetBase {
 
         //$filepath = __DIR__ . DIRECTORY_SEPARATOR . strtolower($this->getName()) . DIRECTORY_SEPARATOR . $resource;
         $filepath = $this->getDir() . DIRECTORY_SEPARATOR . $resource;
+        //traceLog($filepath);
         if(!file_exists($filepath)) {
 
             $validexts = ['.html','.htm','.php','.txt'];
@@ -242,14 +313,24 @@ class ApplicationBase extends WidgetBase {
             );
         }
         else {
-            return Yaml::parse(
+            $object = new stdClass();
+            
+            $configArray = Yaml::parse(
                     file_get_contents(
                         $this->getPath('config' .DIRECTORY_SEPARATOR . $config . '.yaml'
                         )
                     )
                 );
+            foreach ($configArray as $name => $value) {
+                $_name = camel_case($name);
+                $object->{$name} = $object->{$_name} = $value;
+            }
+            
+            return $object;
+            
         }
     }
+    
 
     /**
      * Makes a config object from an array, making the first level keys properties a new object.
@@ -311,10 +392,11 @@ class ApplicationBase extends WidgetBase {
      * @param unknown $title The title of the popup modal
      * @param unknown $content The content to display.
      */
-    public function renderPopup($title,$content) {
+    public function renderPopup($title,$content,$appModalID='popup') {
         return $this->render('___data-popup.html',[
             'contents' => $content,
             'title' => $title,
+        	'appModalID' => $appModalID,
         ]);
     }
     /**
@@ -322,14 +404,15 @@ class ApplicationBase extends WidgetBase {
      * @param string $file The file to render
      * @param array $vars Variables to pass along as values to the html file for rendering
      */
-    public function render($file='app',$vars=[]) {
+    public function render($file='app', $vars=[]) {
         $render = true;
-        foreach($this->permissions as $value) {
-            if(!(BackendAuth::getUser()->hasAccess($value))) {
-                $render = false;
-                break;
-            }
+        $count = 0;        
+        
+        if(!is_null(BackendAuth::getUser()) && !(BackendAuth::getUser()->hasAccess($this->permissions))) {
+            $render = false;                
         }
+        
+        
         $initial =[
                 'controller'=>$this->controller,
                 'name'=>$this->getName(),
@@ -379,9 +462,9 @@ class ApplicationBase extends WidgetBase {
      * <pre>
      &nbsp;newsletters:
      &nbsp;           columnsSelectClosure:myAppCallback
-     &nbsp;           model: ExitControl\Communication\Models\Newsletter
+     &nbsp;           model: Util\Communication\Models\Newsletter
      &nbsp;           maxToDisplayPerPage : 10
-     &nbsp;           destinationLink : exitcontrol/communication/newsletter/update/
+     &nbsp;           destinationLink : util/communication/newsletter/update/
      &nbsp;           columsToList:
      &nbsp;                  name:
      &nbsp;                     label: Newsletter name
@@ -432,7 +515,9 @@ class ApplicationBase extends WidgetBase {
     protected function getList($listName) {
         $config = $this->listConfig->{$listName};
         $closure = (property_exists($config,'columnsSelectClosure')  ? $config->columnsSelectClosure : null);
-
+        $handleSelectInClosure = (property_exists($config,'handleSelectInClosure')  ? $config->columnsSelectClosure === 'true' || $config->columnsSelectClosure == true || $config->columnsSelectClosure == 1 : false);
+        
+        
         $default = $config->columsToList;
 
         if(is_null($closure)) {
@@ -446,28 +531,31 @@ class ApplicationBase extends WidgetBase {
         }
 
         $vars =[
-            'searchValue' => $this->getListSearchValue($listName),
+            'searchQuery' => $this->getListSearchValue($listName),
 
             'orderColumn' => $this->getSession($listName.'orderColumn',$config->defaultColumnToSort),
 
-            'sortDirection' => $this->getSession($listName.'sortDirection','asc'),
+            'sortDirection' => $this->getSession($listName.'sortDirection',(property_exists($config,'sortDirection') ? $config->sortDirection : 'asc')),
 
             'page' => $this->getSession($listName.'pageNumber',0),
 
             'limitPerPage' => $this->getSession($listName.'limitPerPage',$config->maxToDisplayPerPage),
 
             'columsToList' => $config->columsToList,
-
+            'attributes' => (property_exists($config, 'attributes') ? $config->attributes:''),
             'destinationLink' => (property_exists($config, 'destinationLink') ? $config->destinationLink:''),
-
+        	'onclick' => (property_exists($config, 'onclick') ? $config->onclick:''),
+            'apprequest' => (property_exists($config, 'apprequest') ? $config->apprequest:''),
+            'apppopup' => (property_exists($config, 'apppopup') ? $config->apppopup:''),
+            'apprequestdata' => (property_exists($config, 'apprequestdata') ? $config->apprequestdata:''),
             'listName' => $listName,
         ];
         $model = $config->model;
-
+		$model = new $model();
 
         extract($vars);
 
-        $query = $model::with([]);
+        $query = $model->newQuery();
         if(is_string($closure)) {
             if(is_callable([$this,$closure])) {
                 $this->$closure($query);
@@ -484,38 +572,135 @@ class ApplicationBase extends WidgetBase {
         else {
             $closure($query);
         }
-
-        if(!empty($searchValue)) {
-            $searchArr = [];
-            foreach($default as $key => $properties) {
-                if(property_exists($properties,'searchable') && $properties->searchable) {
-                    $query->orWhere($key,'like',"%$searchValue%");
-                }
-            }
-
+		
+        
+        
+        
+        
+        /**
+         * Collect all relationships, preventing double joins etc..
+         * @var unknown
+         */
+        $with = [];
+        $withRelations = [];
+        foreach($default as $key => $properties) {
+        	if(property_exists($properties,'type') && $properties->type == 'relation') {
+        		if(!in_array($properties->relationName, $with)) {
+        			$with[]=$properties->relationName;
+        		}
+        	}
+        }
+        
+        /**
+         * Join only the belongsTo and the HasOne tables.
+         */
+        if(count($with)) {
+	        foreach($with as $key) {
+	        	$relation = $model->{$key}();
+	        	$withRelations[$key] =  $relation;
+	        	if($relation instanceof \October\Rain\Database\Relations\BelongsTo) {
+	        		$query->leftJoin($relation->getRelated()->getTable() .' as '.$key,
+	        				$relation->getParent()->getTable().'.'.$relation->getForeignKey(),'=',$key.'.'.$relation->getOtherKey());
+	        	}
+	        	if($relation instanceof \October\Rain\Database\Relations\HasOne) {
+	        		$query->leftJoin($relation->getRelated()->getTable() . ' as '.$key,
+	        				$relation->getQualifiedParentKeyName(),'=',$key.'.'.substr($relation->getForeignKey(),strpos($relation->getForeignKey(),'.')+1));
+	        	}
+	        }
+	        
+	        $query->with($with);
+        }
+        $select = [];
+        
+        if(!empty($searchQuery)) {
+        	$arr = explode('|',$searchQuery);
+        	$query->where(function($query) use($arr, $default, $model){
+            	foreach($arr as $searchValue) {
+            		foreach($default as $key => $properties) {
+            			if(property_exists($properties, 'searchable') && $properties->searchable == 'true') {
+            				if(property_exists($properties,'type') && $properties->type == 'relation') {
+            					$query->orWhere($properties->relationName.'.'.$key,'like',"%$searchValue%");
+            				}
+            				else {
+            					$query->orWhere($model->getTable().'.'.$key,'like',"%$searchValue%");
+            				}
+            			}
+            		}
+            	}
+        	});
+        	
         }
         $vars['totalCount'] = $query->count();
         $this->setSession($listName.'totalCount',$vars['totalCount']);
-
-        $query = $query->orderBy($orderColumn,$sortDirection)
-        ->take($limitPerPage)
-        ->skip($page * $limitPerPage);
-
+        foreach($default as $key => $properties) {
+        	
+        	if(property_exists($properties,'type') && $properties->type == 'relation') {
+        	    if(property_exists($properties, 'valueFrom')) {
+            		if($key == $orderColumn) {
+            			$orderColumn = $properties->relationName.'.'.$properties->valueFrom;
+            		}
+            		$select[] = $properties->relationName.'.'.$properties->valueFrom.' as '.$key;
+        	    }
+    	        if(property_exists($properties, 'valueFromSelect')) {
+    	            if($key == $orderColumn) {
+    	                $order = new Raw($properties->valueFromSelect);
+    	            }
+    	            $select[] = $properties->valueFromSelect.' as '.$key;
+    	        }
+        	    
+        	}
+        	else {
+        		if($key == $orderColumn) {
+        			$orderColumn = $model->getTable().'.'.$key;
+        		}
+        		$select[] = $model->getTable().'.'.$key.' as '.$key;
+        	}
+        }
+        /**
+         * If the closure doesn't handle the selects
+         */
+        if(!$handleSelectInClosure) {            
+            /**
+             * Test if the primary key has been selected yet, by primary key name AND by fully qualyfied name
+             */
+            //traceLog($select);
+            if(!in_array($model->getKeyName(), $select) 
+                && 
+               !in_array($model->getTable().'.'.$model->getKeyName(),$select)
+               && !in_array($model->getTable().'.'.$model->getKeyName() . ' as '.$model->getKeyName(),$select)) {
+                /**
+                 * add it to select list as fully qualified name.
+                 */
+                $select[] = $model->getTable().'.'.$model->getKeyName();
+                
+            }
+            $query->select(new Raw(implode(',',$select)));
+        }
+		//throw new \Exception(implode(', ',$select)); 
+        $query = $query->orderBy($orderColumn,$sortDirection); 	
+		
+        
+        $query->take($limitPerPage)
+        		->skip($page * $limitPerPage);
+        
+        //throw new \Exception($query->toSql());
         $vars['list'] = $query->get();
-
+		//throw new \Exception($query->toSql());
         /**
          * Little gotcha catcher. if result count suddenly is zero, but we are not on the
          * first page, try to load the first page.
          */
         if($vars['list']->count() == 0 && $page > 0) {
             $this->setSession($listName.'pageNumber',0);
-            $foobar = $this->getList();
+            $foobar = $this->getList($listName);
             $vars['list'] = $foobar['list'];
         }
+        
         Session::save();
+        
         $vars['start'] = ($page * $limitPerPage) + 1;
         $vars['to'] = $vars['list']->count() + $vars['start'] - 1;
-
+		$vars['searchValue'] = $searchQuery;
         return $vars;
     }
     /**

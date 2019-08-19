@@ -23,6 +23,7 @@ class ApplicationController extends Controller
                 $app->render().
                 '</div>';
     }
+    
     private function addApplication($appClass,$name) {
         $app = new $appClass($this);
         if($app instanceof ApplicationBase) {
@@ -33,20 +34,40 @@ class ApplicationController extends Controller
                 dd($this);
             }
             $app->bindToController();
+            $app->preInit();
+            return $app->getApplicationID();
         }
     }
+    public function getApplication($appId) {
+        if(array_key_exists($appId, $this->applications)) {
+            return $this->applications[$appId];
+        }
+        return null;
+    }
+    
+    public function renderApp($appId) {
+        if($app = $this->getApplication($appId)) {
+            return $this->getAppContainer($app);
+        }
+        return '';
+    }
+    
+    public function getRegisteredAppsList() {
+        return collect(array_keys($this->applications));
+    }
+    
     public function registerApplication($appName,$name=null) {
         if(is_null($name)) {
             $name = $appName;
         }
         if(class_exists($appName)) {
-            $this->addApplication($appName,$name);
+            return $this->addApplication($appName,$name);
         }
         else {
             $appSpace = 'Applications';
             $app = implode('\\',['', $appSpace,$appName,$appName]);
             if(class_exists($app)) {
-                $this->addApplication($app,$name);
+                return $this->addApplication($app,$name);
             }
             else {
                 $reflector = new ReflectionClass(get_class($this)); // class Foo of namespace A
@@ -54,7 +75,7 @@ class ApplicationController extends Controller
                 $pluginspace = substr($namespace,0,strpos($namespace,'\\Controller') );
                 $app = implode('\\',['',$pluginspace,$appSpace,$appName,$appName]);
                 if(class_exists($app)) {
-                    $this->addApplication($app,$name);
+                    return $this->addApplication($app,$name);
                 }
                 else {
                     throw new ApplicationException('Cannot find application '.$appName . '
@@ -73,40 +94,25 @@ class ApplicationController extends Controller
 
         return $str;
     }
-
+    /**
+     * Creates a form and binds it to the controller
+     * @param $config
+     * @return \Backend\Widgets\Form
+     */
     public function createApplicationForm($config) {
+        
         /*
          * Form Widget with extensibility
          */
-        $this->formWidget = $this->makeWidget('Backend\Widgets\Form', $config);
-
-        $this->formWidget->bindEvent('form.extendFieldsBefore', function () {
-            $this->controller->formExtendFieldsBefore($this->formWidget);
-        });
-
-        $this->formWidget->bindEvent('form.extendFields', function ($fields) {
-            $this->controller->formExtendFields($this->formWidget, $fields);
-        });
-
-        $this->formWidget->bindEvent('form.beforeRefresh', function ($saveData) {
-            return $this->controller->formExtendRefreshData($this->formWidget, $saveData);
-        });
-
-        $this->formWidget->bindEvent('form.refreshFields', function ($fields) {
-            return $this->controller->formExtendRefreshFields($this->formWidget, $fields);
-        });
-
-        $this->formWidget->bindEvent('form.refresh', function ($result) {
-            return $this->controller->formExtendRefreshResults($this->formWidget, $result);
-        });
-
-        $this->formWidget->bindToController();
+        $formWidget = $this->makeWidget('Backend\Widgets\Form', $config);
+        
+        
+        $formWidget->bindToController();
         /*
          * Detected Relation controller behavior
          */
-        if ($this->controller->isClassExtendedWith('Backend.Behaviors.RelationController')) {
-            $this->controller->initRelation($config->model);
-        }
+        
+        return $formWidget;
     }
 
     public function loadApplicationAssets() {
@@ -133,16 +139,17 @@ class ApplicationController extends Controller
 
     public function loadAssets()
     {
-        $this->addCss($this->getUrlBase('assets/css/metro.css'), 'ExitControl.Desktop');
-        $this->addCss($this->getUrlBase('assets/css/metro-icons.css'), 'ExitControl.Desktop');
-        $this->addCss($this->getUrlBase('assets/css/application.css'), 'ExitControl.Desktop');
+        $this->addCss($this->getUrlBase('assets/css/metro.css'), 'Util.Desktop');
+        $this->addCss($this->getUrlBase('assets/css/metro-icons.css'), 'Util.Desktop');
+        $this->addCss($this->getUrlBase('assets/css/application.css'), 'Util.Desktop');
 
-        $this->addJs($this->getUrlBase('assets/js/metro.js'), 'ExitControl.Desktop');
-        $this->addJs($this->getUrlBase('assets/js/application.js'), 'ExitControl.Desktop');
-        $this->addJs($this->getUrlBase('assets/js/listsearchelement.js'), 'ExitControl.Desktop');
-        $this->addJs($this->getUrlBase('assets/js/linkopenclick.js'), 'ExitControl.Desktop');
-        $this->addJs($this->getUrlBase('assets/js/apppopup.js'), 'ExitControl.Desktop');
-        $this->addJs($this->getUrlBase('assets/js/draggable.js'), 'ExitControl.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/metro.js'), 'Util.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/application.js'), 'Util.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/listsearchelement.js'), 'Util.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/linkopenclick.js'), 'Util.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/apppopup.js'), 'Util.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/draggable.js'), 'Util.Desktop');
+        $this->addJs($this->getUrlBase('assets/js/panelopenclick.js'), 'Util.Desktop');
 
     }
 

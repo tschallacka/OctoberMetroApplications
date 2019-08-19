@@ -1,3 +1,4 @@
+
 .logcontainer .logcontents{
    position:relative;
    overflow:hidden;
@@ -40,20 +41,33 @@
  }
 [data-drag-handle] {
     cursor: default;
- }   
+ }  
+ .size-widthsixhundered {
+       width: 600px;   
+    } 
 @media (min-width: 768px) {
+    
     .modal-dialog.dragging {
-        width: 600px;
+        /*width: 600px;*/
         margin: 0px 0px 0px 0px;
     }
 }
 
 .metro-popup-content {
-    pointer-events: all;
+    pointer-events: auto;
     border : 2px outset #eee;
     background-color:white;
 }
-
+.no-pointer-events {
+    pointer-events:none;
+}
 .metro-control {
-    pointer-events: none !important;
+    /*pointer-events: none !important;*/
+}
+.control-popup.modal.metro-control {
+    background:none;    
+}
+.control-popup.modal.metro-control > .modal-dialog {
+    background: none;
+    
 }

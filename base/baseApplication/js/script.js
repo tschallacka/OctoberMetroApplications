@@ -26,10 +26,50 @@
     	console.log(appName + " has been clicked");
     };
     
-    
-    
-    
-    
+    /**
+     * Close the current modal
+     */
+    Application.prototype.closeModal = function() {
+    	if(this.isModal()) {
+    		this.$el.trigger('close.oc.popup');
+    	}
+    }
+    /**
+     * Close modals with specific name
+     */
+    Application.prototype.closeModalByName = function(name) {
+    	$('[data-app-modal="'+name+'"').trigger('close.oc.popup');
+    }
+    /**
+     * Simple test to determine if you are working in a modal caused by the app or not.
+     * @returns {Boolean} true if is modal, false if not in modal
+     */
+    Application.prototype.isModal = function() {
+    	return !(this.modalEquals(null));
+    }
+    /**
+     * Fetch the name of the modal
+     * @returns {String} the name of the modal, null of not in modal 
+     */
+    Application.prototype.getModalName = function() {
+    	return this.$el.data('app-modal');
+    }
+    /**
+     * Test if given name equals name of current modal
+     * @param modalname The name of modal to test
+     * @returns {Boolean} if it equals, or not
+     */
+    Application.prototype.modalEquals = function(modalname) {
+    	return this.getModalName() == modalname;
+    }
+    /**
+     * Returns a data handler for a sub button in a modal
+     * @param handler the name of the handler
+     * @returns {String} data-app-id-handler
+     */
+    Application.prototype.dataHandler = function(handler) {
+    	return 'data-'+appId+'-'+handler;
+    } 
     /**
      * ================================================================================================================
      *            ****                       Do not edit below this line                             ****
