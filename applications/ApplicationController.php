@@ -28,7 +28,6 @@ class ApplicationController extends ControllerBehavior
     {
         $app = new $appClass($this->controller);
         if($app instanceof ApplicationBase) {
-            $app->alias = $name;
             $this->applications[$app->getApplicationID()] = $app;
             $app->bindToController();
             $app->preInit();
@@ -57,7 +56,7 @@ class ApplicationController extends ControllerBehavior
         return collect(array_keys($this->applications));
     }
     
-    public function registerApplication($appName,$name=null) 
+    public function registerApplication($appName, $name=null) 
     {
         if(is_null($name)) {
             $name = $appName;
@@ -72,7 +71,7 @@ class ApplicationController extends ControllerBehavior
                 return $this->addApplication($app,$name);
             }
             else {
-                $reflector = new ReflectionClass(get_class($this)); // class Foo of namespace A
+                $reflector = new ReflectionClass(get_class($this->controller)); // class Foo of namespace A
                 $namespace = $reflector->getNamespaceName();
                 $pluginspace = substr($namespace,0,strpos($namespace,'\\Controller') );
                 $app = implode('\\',['',$pluginspace,$appSpace,$appName,$appName]);
@@ -163,7 +162,7 @@ class ApplicationController extends ControllerBehavior
     public function onAppRequest() 
     {
         $appid = post('appid');
-
+        
         if(isset($this->applications[$appid])) {
 
             $app = $this->applications[post('appid')];

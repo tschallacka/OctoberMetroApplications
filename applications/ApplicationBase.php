@@ -34,6 +34,15 @@ class ApplicationBase extends WidgetBase
 
     use \Backend\Traits\FormModelSaver;
     
+    public function __construct($controller, $config = []) 
+    {
+        if(!array_key_exists('alias', $config)) {
+            $config['alias'] = $this->getName();
+        }
+        $this->defaultAlias = $this->getName();
+        parent::__construct($controller, $config);
+    }
+    
     public function bindToController() 
     { 
         parent::bindToController();
